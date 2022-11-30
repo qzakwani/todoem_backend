@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 
 
 from .serializers import UserSerializer
-from .decorators import authenticated
+from .decorators import authenticated, reauthenticate
 
 @api_view(['POST'])
 def sign_up(req):
@@ -15,8 +15,9 @@ def sign_up(req):
     return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @authenticated
-def try_me(req):
+@reauthenticate
+def try_me(req, u):
     print('here')
-    return Response({'hello': f'{req.user}'})
+    return Response({'hello': f'{u.username}'})
