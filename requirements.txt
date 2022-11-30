@@ -20,6 +20,7 @@ pyasn1-modules==0.2.8
 pycparser==2.21
 PyJWT==2.6.0
 pyOpenSSL==22.1.0
+python-usernames==0.3.1
 pytz==2022.6
 service-identity==21.1.0
 six==1.16.0
