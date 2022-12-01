@@ -13,7 +13,7 @@ from .validators import validate_username
 
 @api_view(['POST'])
 def sign_up(req, *args, **kwargs):
-    ser = UserSerializer(data=req.POST)
+    ser = UserSerializer(data=req.data)
     if ser.is_valid():
             ser.save()
             return Response(ser.data, status=status.HTTP_201_CREATED)
@@ -32,8 +32,8 @@ class RefreshLogin(TokenRefreshView):
 @reauthenticate
 def change_password(req, user: User, *args, **kwargs):
     try:
-        p1 = req.POST.get('new-password', None)
-        p2 = req.POST.get('confirm-new-password', None)
+        p1 = req.data.get('new-password', None)
+        p2 = req.data.get('confirm-new-password', None)
         if p1 is None or p2 is None: raise MissingInput('new password/s not provided')
         if p1 != p2: raise InvalidPassword('passwords do NOT match')
         if len(p1) < 6: raise InvalidPassword("password length MUST be 6 characters or more")
@@ -50,7 +50,7 @@ def change_password(req, user: User, *args, **kwargs):
 @reauthenticate
 def change_username(req, user: User, *args, **kwargs):
     try:
-        username = req.POST.get('new-username', None)
+        username = req.data.get('new-username', None)
         if username is None: raise MissingInput('new username was not provided')
         validate_username(username)
         if User.objects.filter(username=username).exists(): 

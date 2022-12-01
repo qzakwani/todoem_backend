@@ -13,6 +13,7 @@ class TaskSerializer(serializers.ModelSerializer):
         
         fields = [
             'id',
+            'user_id',
             'task',
             'completed',
             'due',
@@ -22,7 +23,4 @@ class TaskSerializer(serializers.ModelSerializer):
             'created_at'
         ]
         
-        read_only_fields = ['id', 'created_at']
-        
-        
-        
+        read_only_fields = ['id', 'user_id','created_at']

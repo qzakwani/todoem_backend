@@ -14,9 +14,13 @@ class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     task = models.TextField()
     completed = models.BooleanField(default=False)
-    due = models.DateTimeField(blank=True)
+    due = models.DateTimeField(blank=True, null=True)
     repeat = models.BooleanField(default=False)
     repeat_frequency = models.CharField(max_length=1, choices=FREQUENCY, default='D')
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    
+    def __str__(self) -> str:
+        return f'{self.task}'

@@ -19,7 +19,7 @@ def reauthenticate(view_func):
     def wrapper_func(request, *args, **kwargs):
         try:
             user = User.objects.get(id=request.user.id)
-            password = request.POST.get('password', None)
+            password = request.data.get('password', None)
             if password is None: raise MissingInput('password missing')
             if not user.check_password(password): raise InvalidPassword('invalid password')
             return view_func(request, user, *args, **kwargs)
