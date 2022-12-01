@@ -31,5 +31,5 @@ def is_safe_username(username, regex=username_regex, min_length=3):
 def validate_username(value):
     if not is_safe_username(value):
         raise ValidationError(
-            f'{value} is NOT valid.'
+            f'{value} is NOT valid'
         )

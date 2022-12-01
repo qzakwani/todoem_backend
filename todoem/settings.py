@@ -23,6 +23,7 @@ ASGI_APPLICATION = "todoem.asgi.application"
 INSTALLED_APPS = [
     # My apps
     "account",
+    "task",
     
     # Third party
     "daphne",
@@ -136,15 +137,16 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(weeks=1),
     # 'ACCESS_TOKEN_LIFETIME': timedelta(seconds=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(weeks=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(weeks=4),
+    "ROTATE_REFRESH_TOKENS": True,
 
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
 
     'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'uid',
+    'USER_ID_CLAIM': 'id',
     
     'TOKEN_USER_CLASS': 'account.temp.TempUser',
 }

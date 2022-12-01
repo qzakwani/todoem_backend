@@ -21,7 +21,7 @@ def reauthenticate(view_func):
             user = User.objects.get(id=request.user.id)
             password = request.POST.get('password', None)
             if password is None: raise MissingInput('password missing')
-            if not user.check_password(password): raise InvalidPassword()
+            if not user.check_password(password): raise InvalidPassword('invalid password')
             return view_func(request, user, *args, **kwargs)
         except ObjectDoesNotExist:
             return Response({'message': 'user not found'}, status=status.HTTP_404_NOT_FOUND)

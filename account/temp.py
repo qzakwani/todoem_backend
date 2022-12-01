@@ -10,7 +10,7 @@ class TempUser:
     
     @cached_property
     def id(self):
-        return self.token['uid']
+        return self.token['id']
     
     @cached_property
     def is_authenticated(self):
