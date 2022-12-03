@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     # My apps
     "account",
     "task",
+    "lister",
     
     # Third party
     "daphne",

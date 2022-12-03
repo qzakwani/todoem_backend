@@ -1,6 +1,5 @@
 from django.db import models
-
-from account.models import User
+from django.conf import settings
 
 
 class Task(models.Model):
@@ -11,7 +10,7 @@ class Task(models.Model):
     ]
     
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     task = models.TextField()
     completed = models.BooleanField(default=False)
     due = models.DateTimeField(blank=True, null=True)
