@@ -18,9 +18,10 @@ class ConnectionRequest(models.Model):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sender")
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="receiver")
     
+    sent_at = models.DateTimeField(auto_now_add=True)
+    
     class Meta:
         unique_together = ['sender', 'receiver']
-        
 
     
     def __str__(self) -> str:
