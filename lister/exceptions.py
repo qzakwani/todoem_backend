@@ -1,0 +1,2 @@
+class SearchInvalid(Exception):
+    pass

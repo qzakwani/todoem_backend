@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import TaskList
+from .models import TaskList, TaskListTask
 
 class TaskListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,5 +15,14 @@ class TaskListSerializer(serializers.ModelSerializer):
             'created_at'
         ]
         
-        read_only_fields = ['id', 'created_at', 'completed', 'sender', 'reciever']
-        
+
+
+class TaskListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskListTask
+        fields = [
+            'id',
+            'tasklist',
+            'task',
+            'completed',
+        ]
