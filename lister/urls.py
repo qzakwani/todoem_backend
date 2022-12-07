@@ -10,5 +10,6 @@ urlpatterns = [
     path('connection-status/<int:lister_id>/', v.connection_status),
     
     path('my-listers/', v.list_my_listers),
+    path('disconnect/<int:lister_id>/', v.disconnect_lister),
     path('search/', v.search_listers)
 ]

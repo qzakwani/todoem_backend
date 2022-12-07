@@ -81,9 +81,7 @@ def get_connection_request(req, *args, **kwargs):
 @authenticated
 def connection_status(req, lister_id, *args, **kwargs):
     try:
-        print(1)
         connection_status = ConnectedListers.listers.through.objects.filter(connectedlisters_id=req.user.id, user_id=lister_id).exists()
-        print(2)
         return Response({'status': connection_status}, status=status.HTTP_200_OK)
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -106,6 +104,22 @@ def list_my_listers(req, *args, **kwargs):
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+@api_view(['POST'])
+@authenticated
+def disconnect_lister(req, lister_id, *args, **kwargs):
+    try:
+        my_list = ConnectedListers.objects.select_related('user').get(user_id=req.user.id)
+        lister_list = ConnectedListers.objects.select_related('user').get(user_id=lister_id)
+        my_list.listers.remove(lister_list.user)
+        lister_list.listers.remove(my_list.user)
+        return Response(status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        return Response({'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
 
 
 @api_view(['POST'])

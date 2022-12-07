@@ -11,6 +11,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "todoem-secure-758$-4(uz4564545%r!=t-)=w2vfdy554nj(2n!e95ui7+1%58u1l^0&-r!d0*z^"
 
+VERIFICATION_KEY = 'S39MG1nFjpaIETH5zkoAw4HeQWiCE_RwNxdVXNEXFKk='
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

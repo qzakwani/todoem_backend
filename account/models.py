@@ -20,6 +20,8 @@ class User(AbstractUser):
     
     name = models.CharField(max_length=150, blank=True)
     phone_number = PhoneNumberField(blank=True)
+    is_phone_number_verified = models.BooleanField(default=False)
+    is_email_verified = models.BooleanField(default=False)
     
     
     
