@@ -1,0 +1,18 @@
+{% extends "base.html" %} 
+{% block style %} 
+.bold { 
+  font-weight: bold; 
+} 
+
+.green { 
+  color: green; 
+} 
+{% endblock style %} 
+
+{% block content %}
+<p>
+  Email:
+  <span class="bold">{{ email }}</span> has been successfully
+  <span class="bold green">verified</span>.
+</p>
+{% endblock content %}

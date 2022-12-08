@@ -63,6 +63,16 @@ def reject_connection_request(req, user_id, *args, **kwargs):
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['POST'])
+@authenticated
+def cancel_connection_request(req, lister_id, *args, **kwargs):
+    try:
+        ConnectionRequest.objects.filter(sender_id=req.user.id, receiver_id=lister_id).delete()
+        return Response(status=status.HTTP_200_OK)
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['GET'])
 @authenticated
 def get_connection_request(req, *args, **kwargs):

@@ -11,4 +11,6 @@ urlpatterns = [
     path('change-password/', v.change_password),
     path('change-username/', v.change_username),
     
+    path('verify-email/<str:token>/', v.verify_email)
+    
 ]

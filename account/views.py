@@ -1,9 +1,11 @@
+from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
+from todoem.encryption import TodoemEncryption
 
 from .serializers import UserSerializer, LoginTokenSerializer
 from .decorators import authenticated, reauthenticate
@@ -60,3 +62,20 @@ def change_username(req, user: User, *args, **kwargs):
         return Response(status=status.HTTP_200_OK)
     except (MissingInput, ValidationError) as err:
         return Response({'message': err.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+def verify_email(request, token, *args, **kwargs):
+    try:
+        enc = TodoemEncryption(token=token)
+        email, date = enc.decrypt_with_date()
+        if enc.is_expired(): raise ValidationError()
+        res = User.objects.filter(email=email).update(is_email_verified=True)
+        if res == 0: raise ObjectDoesNotExist()
+        return render(request, 'email_verified.html', {'email': email})
+    except ValidationError:
+        return render(request, 'link_expired.html')
+    except ObjectDoesNotExist:
+        return render(request, 'account_not_found.html')
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

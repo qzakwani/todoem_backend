@@ -17,10 +17,12 @@ class UserSerializer(serializers.ModelSerializer):
             'password', 
             'name', 
             'email', 
+            'is_email_verified',
             'phone_number',
+            'is_phone_number_verified',
             'date_joined'
             ]
-        read_only_fields = ['id', 'date_joined']
+        read_only_fields = ['id', 'date_joined', 'is_email_verified', 'is_phone_number_verified']
         extra_kwargs = {'password': {'write_only': True}}
     
     

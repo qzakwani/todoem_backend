@@ -17,6 +17,8 @@ class User(AbstractUser):
         },
     )
     password = models.CharField(max_length=128, validators=[MinLengthValidator(6, message="password length MUST be 6 characters or more")])
+    email = models.EmailField(blank=True)
+    
     
     name = models.CharField(max_length=150, blank=True)
     phone_number = PhoneNumberField(blank=True)
