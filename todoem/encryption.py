@@ -3,6 +3,8 @@ from cryptography.fernet import Fernet
 from django.utils import timezone
 from django.conf import settings
 
+#! Time and date functonality dont work
+
 class TodoemEncryption:
     
     _data = None

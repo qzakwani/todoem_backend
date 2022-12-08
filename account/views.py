@@ -68,14 +68,12 @@ def change_username(req, user: User, *args, **kwargs):
 def verify_email(request, token, *args, **kwargs):
     try:
         enc = TodoemEncryption(token=token)
-        email, date = enc.decrypt_with_date()
-        if enc.is_expired(): raise ValidationError()
-        res = User.objects.filter(email=email).update(is_email_verified=True)
-        if res == 0: raise ObjectDoesNotExist()
+        email = enc.decrypt()
+        res = User.objects.filter(email=email, is_email_verified=False).update(is_email_verified=True)
+        if res == 0 or res > 1: raise ObjectDoesNotExist()
         return render(request, 'email_verified.html', {'email': email})
-    except ValidationError:
-        return render(request, 'link_expired.html')
     except ObjectDoesNotExist:
         return render(request, 'account_not_found.html')
-    except:
-        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as e:
+        print(type(e))
+        return render(request, 'error.html')
