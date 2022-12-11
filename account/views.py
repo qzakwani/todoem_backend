@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
-from todoem.encryption import TodoemEncryption
+from utils.encryption import TodoemEncryption
 
 from .serializers import UserSerializer, LoginTokenSerializer
 from .decorators import authenticated, reauthenticate
@@ -65,15 +65,26 @@ def change_username(req, user: User, *args, **kwargs):
 
 
 
+
+@api_view(['POST'])
+@authenticated
+def send_verification_email(req, *args, **kwargs):
+    pass
+
+
+
 def verify_email(request, token, *args, **kwargs):
     try:
         enc = TodoemEncryption(token=token)
         email = enc.decrypt()
         res = User.objects.filter(email=email, is_email_verified=False).update(is_email_verified=True)
-        if res == 0 or res > 1: raise ObjectDoesNotExist()
+        if res != 1: raise ObjectDoesNotExist()
         return render(request, 'email_verified.html', {'email': email})
     except ObjectDoesNotExist:
         return render(request, 'account_not_found.html')
     except Exception as e:
         print(type(e))
         return render(request, 'error.html')
+
+
+

@@ -10,14 +10,16 @@ class TaskListSerializer(serializers.ModelSerializer):
             'name',
             'description',
             'completed',
-            'sender',
-            'receiver',
+            'sender_id',
+            'receiver_id',
             'created_at'
         ]
         
+        read_only_fields = ['id', 'sender_id','receiver_id','created_at']
+        
 
 
-class TaskListSerializer(serializers.ModelSerializer):
+class TaskListTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskListTask
         fields = [
@@ -26,3 +28,5 @@ class TaskListSerializer(serializers.ModelSerializer):
             'task',
             'completed',
         ]
+        
+        read_only_fields = ['id', 'tasklist']

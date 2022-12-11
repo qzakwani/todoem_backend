@@ -3,11 +3,13 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 
 
-# ! implement celery to handle listtasks
+
 
 @api_view(['POST'])
 def create_tasklist(req, *args, **kwargs):
     try:
-        pass
+        print(req.data)
+        return Response(status=status.HTTP_200_OK)
     except:
         pass
+    

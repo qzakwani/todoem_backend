@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import timedelta
 
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -9,14 +10,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "todoem-secure-758$-4(uz4564545%r!=t-)=w2vfdy554nj(2n!e95ui7+1%58u1l^0&-r!d0*z^"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
-VERIFICATION_KEY = 'S39MG1nFjpaIETH5zkoAw4HeQWiCE_RwNxdVXNEXFKk='
+VERIFICATION_KEY = os.getenv("VERIFICATION_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 
 # Application definition
@@ -27,11 +28,15 @@ INSTALLED_APPS = [
     "account",
     "task",
     "lister",
+    "tasklist",
+    
+    "utils",
     
     # Third party
     "daphne",
-    'rest_framework',
+    "rest_framework",
     "phonenumber_field",
+    "django_celery_results",
     
     #
     "django.contrib.admin",
@@ -127,8 +132,15 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
+#* My settings *#
+
 AUTH_USER_MODEL = 'account.User'
 
+# email settings
+MAIN_FROM_EMAIL = ""
+INFO_FROM_EMAIL = ""
+ACCOUNT_FROM_EMAIL = "account@todoem.xyz"
+MAIN_EMAIL_DOMAIN = "@todoem.xyz"
 
 
 REST_FRAMEWORK = {
@@ -153,3 +165,12 @@ SIMPLE_JWT = {
     
     'TOKEN_USER_CLASS': 'account.temp.TempUser',
 }
+
+##################
+###   CELERY   ###
+##################
+
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_RESULT_SERIALIZER = 'json'

@@ -7,8 +7,8 @@ class TaskList(models.Model):
     description = models.TextField(blank=True)
     completed = models.BooleanField(default=False) 
     
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="tasklist_sender")
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="tasklist_receiver")
     
     created_at = models.DateTimeField(auto_now_add=True)
     

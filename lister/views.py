@@ -5,7 +5,7 @@ from django.db.utils import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 
 
-from todoem.utils import paginate_list
+from utils.pagination import paginate_list
 from account.decorators import authenticated
 from account.models import User
 
