@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "phonenumber_field",
     "django_celery_results",
+    "anymail",
     
     #
     "django.contrib.admin",
@@ -62,7 +63,9 @@ ROOT_URLCONF = "todoem.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            f'{BASE_DIR}/emails/'
+            ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -137,12 +140,17 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'account.User'
 
 # email settings
-MAIN_FROM_EMAIL = ""
-INFO_FROM_EMAIL = ""
-ACCOUNT_FROM_EMAIL = "account@todoem.xyz"
 MAIN_EMAIL_DOMAIN = "@todoem.xyz"
+EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+
+ANYMAIL = {
+    "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY"),
+}
 
 
+##################
+###   RDREST   ###
+##################
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
