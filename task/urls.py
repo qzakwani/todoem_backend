@@ -8,5 +8,6 @@ urlpatterns = [
     path('list/', v.list_tasks),
     path('update/<int:task_id>/', v.update_task),
     path('delete/<int:task_id>/', v.delete_task),
+    path('delete-all-completed/', v.delete_completed_tasks),
     path('delete-all/', v.delete_tasks),
 ]

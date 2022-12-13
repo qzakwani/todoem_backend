@@ -84,10 +84,21 @@ def delete_task(req, task_id, *args, **kwargs):
 
 @api_view(['DELETE'])
 @authenticated
+def delete_completed_tasks(req, *args, **kwargs):
+    try:
+        tasks = Task.objects.filter(user_id=req.user.id, completed=True)
+        i, _ = tasks.delete()
+        return Response({"deleted_tasks": i}, status=status.HTTP_200_OK)
+    except: 
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+@authenticated
 def delete_tasks(req, *args, **kwargs):
     try:
         tasks = Task.objects.filter(user_id=req.user.id)
-        tasks.delete()
-        return Response(status=status.HTTP_200_OK)
+        i, _ = tasks.delete()
+        return Response({"deleted_tasks": i}, status=status.HTTP_200_OK)
     except: 
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -40,7 +40,6 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'name', 
-            'phone_number',
             ]
 
 

@@ -12,6 +12,8 @@ class TaskList(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     
+    notification = models.CharField(max_length=150, blank=True)
+    
     def __str__(self) -> str:
         return self.name
 

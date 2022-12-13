@@ -11,9 +11,12 @@ def send_verification_email(email: str, base_link: str):
             [email,],
             "Verify todoem Email",
             "verify_email.txt",
-            ctx={"link": f"{base_link}{enc.encrypt()}/"}
+            ctx={"link": f"{base_link}/account/verify-email/{enc.encrypt()}/"}
         )
         return
     except Exception as e:
         raise e
-    
+
+
+def get_base_url(request) -> str:
+    return f"{request.scheme}://{request.get_host()}"

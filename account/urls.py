@@ -15,6 +15,10 @@ urlpatterns = [
     path('change-username/', v.change_username),
     
     path('verify-email/', v.request_email_verification),
-    path('verify-email/<str:token>/', v.verify_email)
+    path('verify-email/resend/', v.resend_email_verification),
+    path('verify-email/<str:token>/', v.verify_email),
+    
+    
+    path('deactivate/', v.deactivate_account)
     
 ]

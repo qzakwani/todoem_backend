@@ -13,7 +13,7 @@ from .decorators import authenticated, reauthenticate
 from .exceptions import MissingInput, InvalidPassword
 from .models import User
 from .validators import validate_username 
-from .utils import send_verification_email
+from .utils import send_verification_email, get_base_url
 
 @api_view(['POST'])
 def sign_up(req, *args, **kwargs):
@@ -44,7 +44,7 @@ def get_user(req, *args, **kwargs):
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['UPDATE'])
+@api_view(['PUT'])
 @authenticated
 def update_profile(req, *args, **kwargs):
     try:
@@ -103,7 +103,7 @@ def request_email_verification(req, *args, **kwargs):
         if email is None: raise MissingInput("email not provided")
         validate_email(email)
         User.objects.filter(id=req.user.id).update(email=email, is_email_verified=False)
-        send_verification_email(email, req.build_absolute_uri())
+        send_verification_email(email, get_base_url(req))
         return Response(status=status.HTTP_202_ACCEPTED)
     except MissingInput as err:
         return Response({'message': err.args[0]}, status=status.HTTP_400_BAD_REQUEST)
@@ -114,20 +114,17 @@ def request_email_verification(req, *args, **kwargs):
 
 
 
-# @api_view(['POST'])
-# @authenticated
-# def resend_email_verification(req, *args, **kwargs):
-#     try:
-#         user = User.objects.get(id=req.user.id)
-#         User.objects.filter(id=req.user.id).update(email=email, is_email_verified=False)
-#         send_verification_email(email, req.build_absolute_uri())
-#         return Response(status=status.HTTP_202_ACCEPTED)
-#     except MissingInput as err:
-#         return Response({'message': err.args[0]}, status=status.HTTP_400_BAD_REQUEST)
-#     except ValidationError:
-#         return Response({'message': "invalid email"})
-#     except:
-#         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+@api_view(['POST'])
+@authenticated
+def resend_email_verification(req, *args, **kwargs):
+    try:
+        user = User.objects.get(id=req.user.id)
+        if user.email and not user.is_email_verified:
+            send_verification_email(user.email, get_base_url(req))
+            return Response(status=status.HTTP_202_ACCEPTED)
+        return Response({'message': "email not found or already verified"}, status=status.HTTP_404_NOT_FOUND)
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def verify_email(request, token, *args, **kwargs):
@@ -144,3 +141,11 @@ def verify_email(request, token, *args, **kwargs):
 
 
 
+@api_view(['POST'])
+@authenticated
+@reauthenticate
+def deactivate_account(req, user: User, *args, **kwargs):
+    i, _ = user.delete()
+    if i != 1:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(status=status.HTTP_202_ACCEPTED)
