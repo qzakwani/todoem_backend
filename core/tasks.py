@@ -10,8 +10,14 @@ logger = get_task_logger(__name__)
 
 @shared_task(ignore_result=True)
 def send_todoem_email(
-    subj: str, from_username: str, to: list[str], template: str, ctx: dict = None):
-    _from = from_username + settings.MAIN_EMAIL_DOMAIN
+    name: str,
+    from_username: str, 
+    to: list[str], 
+    subj: str, 
+    template: str, 
+    ctx: dict = None):
+    
+    _from = f"{name} <{from_username}{settings.MAIN_EMAIL_DOMAIN}>"
     try:
         msg = render_to_string(template, context=ctx)
         send_mail(
@@ -24,4 +30,7 @@ def send_todoem_email(
     except AnymailError as err:
         logger.error(err)
     except Exception as e:
-        logger.error(type(e))
+        logger.error({
+            "Exception": type(e),
+            "args": e.args
+        })

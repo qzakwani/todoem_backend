@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     "lister",
     "tasklist",
     
-    "utils",
+    "core",
     
     # Third party
     "daphne",

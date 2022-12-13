@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 
 
 from account.decorators import authenticated
-from utils.exceptions import MissingInput, NotConnectedLister
+from core.exceptions import MissingInput, NotConnectedLister
 from lister.models import ConnectedListers
 
 

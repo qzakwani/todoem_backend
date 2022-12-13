@@ -34,6 +34,17 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'name', 
+            'phone_number',
+            ]
+
+
+
 class LoginTokenSerializer(TokenObtainSerializer):
     token_class = RefreshToken
 

@@ -4,14 +4,16 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.validators import validate_email
 
-from utils.encryption import TodoemEncryption
+from core.encryption import TodoemEncryption
 
-from .serializers import UserSerializer, LoginTokenSerializer
+from .serializers import UserSerializer, LoginTokenSerializer, UpdateUserSerializer
 from .decorators import authenticated, reauthenticate
 from .exceptions import MissingInput, InvalidPassword
 from .models import User
 from .validators import validate_username 
+from .utils import send_verification_email
 
 @api_view(['POST'])
 def sign_up(req, *args, **kwargs):
@@ -29,6 +31,33 @@ class RefreshLogin(TokenRefreshView):
     pass
 
 
+@api_view(['GET'])
+@authenticated
+def get_user(req, *args, **kwargs):
+    try:
+        user = User.objects.get(id=req.user.id)
+        ser = UserSerializer(user)
+        return Response(ser.data, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        return Response({"message": "user not found"}, status=status.HTTP_404_NOT_FOUND)
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['UPDATE'])
+@authenticated
+def update_profile(req, *args, **kwargs):
+    try:
+        user = User.objects.get(id=req.user.id)
+        ser = UpdateUserSerializer(user, data=req.data)
+        if ser.is_valid():
+            ser.save()
+            return Response(ser.validated_data, status=status.HTTP_201_CREATED)
+        return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['POST'])
 @authenticated
 @reauthenticate
@@ -43,7 +72,7 @@ def change_password(req, user: User, *args, **kwargs):
         user.save(update_fields=['password'])
         return Response(status=status.HTTP_200_OK)
     except (MissingInput, InvalidPassword) as err:
-        return Response({'message': str(err)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': err.args[0]}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -65,12 +94,40 @@ def change_username(req, user: User, *args, **kwargs):
 
 
 
-
+# Updating email
 @api_view(['POST'])
 @authenticated
-def send_verification_email(req, *args, **kwargs):
-    pass
+def request_email_verification(req, *args, **kwargs):
+    try:
+        email = req.data.get("email", None)
+        if email is None: raise MissingInput("email not provided")
+        validate_email(email)
+        User.objects.filter(id=req.user.id).update(email=email, is_email_verified=False)
+        send_verification_email(email, req.build_absolute_uri())
+        return Response(status=status.HTTP_202_ACCEPTED)
+    except MissingInput as err:
+        return Response({'message': err.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+    except ValidationError:
+        return Response({'message': "invalid email"})
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+# @api_view(['POST'])
+# @authenticated
+# def resend_email_verification(req, *args, **kwargs):
+#     try:
+#         user = User.objects.get(id=req.user.id)
+#         User.objects.filter(id=req.user.id).update(email=email, is_email_verified=False)
+#         send_verification_email(email, req.build_absolute_uri())
+#         return Response(status=status.HTTP_202_ACCEPTED)
+#     except MissingInput as err:
+#         return Response({'message': err.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+#     except ValidationError:
+#         return Response({'message': "invalid email"})
+#     except:
+#         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def verify_email(request, token, *args, **kwargs):
@@ -83,7 +140,6 @@ def verify_email(request, token, *args, **kwargs):
     except ObjectDoesNotExist:
         return render(request, 'account_not_found.html')
     except Exception as e:
-        print(type(e))
         return render(request, 'error.html')
 
 
