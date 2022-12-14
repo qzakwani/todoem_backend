@@ -13,6 +13,7 @@ from account.models import User
 from .models import ConnectionRequest, ConnectedListers
 from .serializers import ConnectionRequestSerializer, ListerProfileSerializer
 from .exceptions import SearchInvalid
+from .enums import ConnectionStatus
 
 
 #########################
@@ -87,12 +88,22 @@ def get_connection_request(req, *args, **kwargs):
 
 
 
+##############
+##  STATUS  ##
+##############
+
 @api_view(['GET'])
 @authenticated
 def connection_status(req, lister_id, *args, **kwargs):
     try:
-        connection_status = ConnectedListers.listers.through.objects.filter(connectedlisters_id=req.user.id, user_id=lister_id).exists()
-        return Response({'status': connection_status}, status=status.HTTP_200_OK)
+        conn_status = ConnectionStatus.DISCONNECTED.value
+        if ConnectedListers.objects.filter(user_id=req.user.id, listers__id=lister_id).exists():
+            conn_status = ConnectionStatus.CONNECTED.value
+        elif ConnectionRequest.objects.filter(receiver=req.user.id, sender=lister_id).exists():
+            conn_status = ConnectionStatus.RECEIVED.value
+        elif ConnectionRequest.objects.filter(receiver=lister_id, sender=req.user.id).exists():
+            conn_status = ConnectionStatus.SENT.value
+        return Response({'status': conn_status}, status=status.HTTP_200_OK)
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -106,7 +117,7 @@ def list_my_listers(req, *args, **kwargs):
     try:
         page_number = req.query_params.get('page', 1)
         listers = ConnectedListers.objects.get(user_id=req.user.id).listers.all()
-        page = paginate_list(listers, 10, page_number)
+        page = paginate_list(listers, 100, page_number)
         ser = ListerProfileSerializer(page, many=True)
         return Response({'next': page.has_next(), 'listers': ser.data}, status=status.HTTP_200_OK)
     except ObjectDoesNotExist:
@@ -114,6 +125,18 @@ def list_my_listers(req, *args, **kwargs):
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+@api_view(['GET'])
+@authenticated
+def get_lister(req, lister_id, *args, **kwargs):
+    try:
+        lister = User.objects.get(id=lister_id)
+        ser = ListerProfileSerializer(lister)
+        return Response(ser.data, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        return Response({'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])

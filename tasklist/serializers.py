@@ -1,36 +1,51 @@
 from rest_framework import serializers
 
-from .models import TaskList, TaskListTask
+from .models import TaskList, TaskListTask, SentTaskList, SentTaskListTask
+from .utils import insert_tasklist
 
-class TaskListTaskSerializer(serializers.ModelSerializer):
+################
+#*    SENT    *#
+################
+
+class SentTaskListTaskSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TaskListTask
+        model = SentTaskListTask
         fields = [
             'id',
             'tasklist',
             'task',
-            'completed',
         ]
         
         read_only_fields = ['id', 'tasklist']
 
-class TaskListSerializer(serializers.ModelSerializer):
-    tasks = TaskListTaskSerializer(many=True)
+class CreateSentTaskListSerializer(serializers.ModelSerializer):
+    tasks = SentTaskListTaskSerializer(many=True)
     class Meta:
-        model = TaskList
+        model = SentTaskList
+        fields = [
+            'name',
+            'description',
+            'tasks',
+        ]
+        
+        
+    def create(self, validated_data):
+        task_list = insert_tasklist(SentTaskList, SentTaskListTask, validated_data)
+        return task_list
+
+
+class ReadSentTaskListSerializer(serializers.ModelSerializer):
+    tasks = SentTaskListTaskSerializer(many=True, read_only=True, required=False)
+    class Meta:
+        model = SentTaskList
         fields = [
             'id',
             'name',
             'description',
-            'completed',
             'sender_id',
             'receiver_id',
             'tasks',
-            'notification',
-            'created_at'
+            'tasks_num',
+            'delivered',
         ]
-        
-        read_only_fields = ['id', 'sender_id','receiver_id', 'notification', 'created_at']
-        
-        
         

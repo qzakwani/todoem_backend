@@ -2,6 +2,8 @@ from django.urls import path
 from . import views as v
 
 urlpatterns = [
+    path('<int:lister_id>/', v.get_lister),
+    
     path('connection-requests/', v.get_connection_request),
     path('connection-request/<int:user_id>/', v.send_connection_request),
     path('connection-accept/<int:user_id>/', v.accept_connection_request),

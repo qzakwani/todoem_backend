@@ -3,3 +3,6 @@ class MissingInput(Exception):
 
 class NotConnectedLister(Exception):
     pass
+
+class UpdateFailed(Exception):
+    pass
