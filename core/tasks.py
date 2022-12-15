@@ -30,7 +30,10 @@ def send_todoem_email(
     except AnymailError as err:
         logger.error(err)
     except Exception as e:
-        logger.error({
-            "Exception": type(e),
-            "args": e.args
-        })
+        logger.error(
+            f'''
+            Exception: {type(e)},
+            
+            args: {e.args}
+        '''
+        )

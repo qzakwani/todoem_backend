@@ -11,12 +11,11 @@ class SentTaskListTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = SentTaskListTask
         fields = [
-            'id',
             'tasklist',
             'task',
         ]
         
-        read_only_fields = ['id', 'tasklist']
+        read_only_fields = ['tasklist']
 
 class CreateSentTaskListSerializer(serializers.ModelSerializer):
     tasks = SentTaskListTaskSerializer(many=True)
@@ -35,17 +34,26 @@ class CreateSentTaskListSerializer(serializers.ModelSerializer):
 
 
 class ReadSentTaskListSerializer(serializers.ModelSerializer):
-    tasks = SentTaskListTaskSerializer(many=True, read_only=True, required=False)
+    # tasks = SentTaskListTaskSerializer(many=True, read_only=True, required=False)
     class Meta:
         model = SentTaskList
-        fields = [
-            'id',
-            'name',
-            'description',
-            'sender_id',
-            'receiver_id',
-            'tasks',
-            'tasks_num',
-            'delivered',
-        ]
-        
+        fields = '__all__'
+
+
+
+####################
+#*    RECEIVED    *#
+####################
+class TaskListTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskListTask
+        fields = '__all__'
+
+
+class TaskListSerializer(serializers.ModelSerializer):
+    # tasks = TaskListTaskSerializer(many=True, required=False)
+    class Meta:
+        model = TaskList
+        fields = '__all__'
+
+

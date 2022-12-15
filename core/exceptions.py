@@ -6,3 +6,6 @@ class NotConnectedLister(Exception):
 
 class UpdateFailed(Exception):
     pass
+
+class DeleteFailed(Exception):
+    pass
