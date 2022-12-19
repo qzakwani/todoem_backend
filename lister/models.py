@@ -5,7 +5,7 @@ from account.models import User
 
 class ConnectedListers(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user")
-    listers = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name="listers")
+    listers = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name="lister")
     
     
     def __str__(self) -> str:

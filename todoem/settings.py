@@ -24,16 +24,18 @@ ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split("
 ASGI_APPLICATION = "todoem.asgi.application"
 
 INSTALLED_APPS = [
+    "daphne",
+    
     # My apps
     "account",
     "task",
     "lister",
     "tasklist",
+    "taskgroup",
     
     "core",
     
     # Third party
-    "daphne",
     "rest_framework",
     "phonenumber_field",
     "django_celery_results",
@@ -182,3 +184,19 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_BROKER_URL = "redis://localhost:6379"
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_RESULT_SERIALIZER = 'json'
+
+
+
+
+####################
+###   CHANNELS   ###
+####################
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}

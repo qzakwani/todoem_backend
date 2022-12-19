@@ -97,7 +97,7 @@ def get_connection_request(req, *args, **kwargs):
 def connection_status(req, lister_id, *args, **kwargs):
     try:
         conn_status = ConnectionStatus.DISCONNECTED.value
-        if ConnectedListers.objects.filter(user_id=req.user.id, listers__id=lister_id).exists():
+        if ConnectedListers.objects.filter(user_id=req.user.id, listers__lister=lister_id).exists():
             conn_status = ConnectionStatus.CONNECTED.value
         elif ConnectionRequest.objects.filter(receiver=req.user.id, sender=lister_id).exists():
             conn_status = ConnectionStatus.RECEIVED.value

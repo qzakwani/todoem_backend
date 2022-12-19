@@ -25,7 +25,7 @@ def create_tasklist(req, *args, **kwargs):
         _to = req.data.get('to', None)
         if _to is None: raise MissingInput('to: missing')
         
-        if not ConnectedListers.objects.filter(user_id=req.user.id, listers__id=_to).exists():
+        if not ConnectedListers.objects.filter(user_id=req.user.id, listers__lister=_to).exists():
             raise NotConnectedLister('to: not connected lister')
         
         ser = CreateSentTaskListSerializer(data=req.data)
@@ -142,7 +142,7 @@ def complete_tasklist(req, list_id, *args, **kwargs):
 @authenticated
 def complete_tasklist_task(req, list_id, task_id, *args, **kwargs):
     try:
-        i = TaskListTask.objects.filter(id=task_id, tasklist_id=list_id, tasklist__receiver_id=req.user.id).update(completed=True)
+        i = TaskListTask.objects.filter(id=task_id, tasklist_id=list_id, tasklist__tasklist_receiver=req.user.id).update(completed=True)
         if i != 1: raise UpdateFailed()
         return Response(status=status.HTTP_200_OK)
     except UpdateFailed:
@@ -168,7 +168,7 @@ def uncomplete_tasklist(req, list_id, *args, **kwargs):
 @authenticated
 def uncomplete_tasklist_task(req, list_id, task_id, *args, **kwargs):
     try:
-        i = TaskListTask.objects.filter(id=task_id, tasklist_id=list_id, tasklist__receiver_id=req.user.id).update(completed=False)
+        i = TaskListTask.objects.filter(id=task_id, tasklist_id=list_id, tasklist__tasklist_receiver=req.user.id).update(completed=False)
         if i != 1: raise UpdateFailed()
         return Response(status=status.HTTP_200_OK)
     except UpdateFailed:

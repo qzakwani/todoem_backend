@@ -7,4 +7,5 @@ urlpatterns = [
     path('task/', include('task.urls')),
     path('lister/', include('lister.urls')),
     path('tasklist/', include('tasklist.urls')),
+    path('taskgroup/', include('taskgroup.urls')),
 ]

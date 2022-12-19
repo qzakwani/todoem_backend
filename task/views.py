@@ -5,6 +5,9 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 from account.decorators import authenticated
+from core.exceptions import UpdateFailed
+
+
 from .models import Task
 from .serializers import TaskSerializer
 from .exception import InvalidOwnership
@@ -67,6 +70,34 @@ def update_task(req, task_id, *args, **kwargs):
         return Response({'message': 'task not found'}, status=status.HTTP_404_NOT_FOUND)
     except: 
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+@api_view(['POST'])
+@authenticated
+def complete_task(req, task_id, *args, **kwargs):
+    try:
+        i = Task.objects.filter(id=task_id, user_id=req.user.id).update(completed=True)
+        if i != 1: raise UpdateFailed()
+        return Response(status=status.HTTP_200_OK)
+    except UpdateFailed:
+        return Response({'message': 'update failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except: 
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(['POST'])
+@authenticated
+def uncomplete_task(req, task_id, *args, **kwargs):
+    try:
+        i = Task.objects.filter(id=task_id, user_id=req.user.id).update(completed=False)
+        if i != 1: raise UpdateFailed()
+        return Response(status=status.HTTP_200_OK)
+    except UpdateFailed:
+        return Response({'message': 'update failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except: 
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 @api_view(['DELETE'])

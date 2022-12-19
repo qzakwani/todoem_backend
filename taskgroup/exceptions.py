@@ -1,0 +1,2 @@
+class MembersError(Exception):
+    pass
