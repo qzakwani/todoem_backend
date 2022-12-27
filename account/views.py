@@ -2,9 +2,11 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_email
+from django.conf import settings
 
 from core.encryption import TodoemEncryption
 
@@ -26,9 +28,32 @@ def sign_up(req, *args, **kwargs):
 
 class Login(TokenObtainPairView):
     serializer_class = LoginTokenSerializer
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+        
+        res = Response(serializer.validated_data, status=status.HTTP_200_OK)
+        res.set_cookie(key="token", value=serializer.validated_data['access'], max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'], httponly=True, samesite='Lax')
+        return res
 
 class RefreshLogin(TokenRefreshView):
-    pass
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+        
+        res = Response(serializer.validated_data, status=status.HTTP_200_OK)
+        res.set_cookie(key="token", value=serializer.validated_data['access'], max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'], httponly=True, samesite='Lax')
+        return res
+        
 
 
 @api_view(['GET'])

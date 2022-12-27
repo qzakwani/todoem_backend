@@ -12,8 +12,8 @@ class TaskGroupSerializer(serializers.ModelSerializer):
 
 
 
-class TaskGroupSerializer(serializers.ModelSerializer):
+class TaskGroupTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskGroupTask
         fields = '__all__'
-        read_only_fields = ['id', 'taskgroup','completed', 'completed_by', 'comment', 'last_modified', 'created_at']
+        read_only_fields = ['id', 'taskgroup', 'completed' ,'completed_by', 'comment', 'last_modified', 'created_at']
