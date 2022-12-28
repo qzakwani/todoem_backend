@@ -7,25 +7,22 @@ from .serializers import TaskGroupTaskSerializer
 from .models import TaskGroupTask
 
 class TaskGroupConsumer(AsyncJsonWebsocketConsumer):
-    
+    taskgroup_db = None
     uid = None
     is_admin = False
     
     async def connect(self):
-        import random
-        
-        self.uid=random.randint(1, 99)
-        
         self.taskgroup_id = self.scope["url_route"]["kwargs"]["taskgroup_id"]
         self.taskgroup_db = self.taskgroup_id
 
         # Join room group
         await self.channel_layer.group_add(self.taskgroup_db, self.channel_name)
 
-        await self.accept()
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.taskgroup_db, self.channel_name)
+        if self.taskgroup_db is not None:
+            await self.channel_layer.group_discard(self.taskgroup_db, self.channel_name)
+
 
     # Receive message from WebSocket
     async def receive_json(self, content):

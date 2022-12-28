@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body{
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+    </style>
+    <title>Document</title>
+</head>
+<body>
+    
+
+    <button onclick="login()">LOGIN</button>
+    <button onclick="connictSocket()">CONNECT</button>
+    <button onclick="disc()">DISCONNECT</button>
+
+
+
+    <script>
+        async function login(){
+            fetch('http://' + window.location.host +'/account/login/', {
+                headers: {
+      'Content-Type': 'application/json'
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+                method: 'POST',
+                body: JSON.stringify({username: "admin", password: "admin"})
+            }).then(res => res.json()).then(
+                data => console.log(data)
+            )
+        }
+
+
+        let socket;
+        function connictSocket(){
+            socket = new WebSocket('ws://' + window.location.host + '/ws/taskgroup/1/');
+            socket.onclose = (event) => console.log(event.code);
+            socket.onmessage = (event) => console.log(event.data);
+        }
+
+        function disc(){
+            socket.close();
+        }
+
+        
+    </script>
+
+
+</body>
+</html>

@@ -140,3 +140,10 @@ def kick_member(req, taskgroup_id, member_id, *args, **kwargs):
         return Response({'message': 'user or taskgroup not found'}, status=status.HTTP_404_NOT_FOUND)
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+from django.shortcuts import render
+def testo(req, *args, **kwargs):
+    return render(req, 'testo.html')
