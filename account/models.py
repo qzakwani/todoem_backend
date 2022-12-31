@@ -30,3 +30,7 @@ class User(AbstractUser):
     first_name = None
     last_name = None
     last_login = None
+    
+    def __str__(self):
+        return self.username
+    

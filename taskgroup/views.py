@@ -147,3 +147,11 @@ def kick_member(req, taskgroup_id, member_id, *args, **kwargs):
 from django.shortcuts import render
 def testo(req, *args, **kwargs):
     return render(req, 'testo.html')
+
+# def kick():
+#     from asgiref.sync import async_to_sync
+#     from channels.layers import get_channel_layer
+    
+#     cl = get_channel_layer()
+    
+#     async_to_sync(cl.group_send)('27', {'type': 'handel_kick', 'content': {'target': 10}})

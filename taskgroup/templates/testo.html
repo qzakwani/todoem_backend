@@ -18,9 +18,11 @@
 </head>
 <body>
     
+    <input type="text">
 
     <button onclick="login()">LOGIN</button>
     <button onclick="connictSocket()">CONNECT</button>
+    <button onclick="add()">ADD</button>
     <button onclick="disc()">DISCONNECT</button>
 
 
@@ -42,13 +44,22 @@
 
         let socket;
         function connictSocket(){
-            socket = new WebSocket('ws://' + window.location.host + '/ws/taskgroup/1/');
-            socket.onclose = (event) => console.log(event.code);
+            socket = new WebSocket('ws://' + window.location.host + '/ws/taskgroup/27/');
+            socket.onclose = (event) => {
+                console.log(event.code);
+            }
             socket.onmessage = (event) => console.log(event.data);
+        
         }
 
         function disc(){
             socket.close();
+        }
+
+        function add(){
+            socket.send(JSON.stringify(
+                {"action": "add", "target": 10}
+            ))
         }
 
         

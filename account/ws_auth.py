@@ -1,10 +1,12 @@
 from rest_framework_simplejwt.authentication import JWTStatelessUserAuthentication
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
-class DenyUnauthorized(AsyncWebsocketConsumer):
+
+class DenyUnauthorized(AsyncJsonWebsocketConsumer):
     async def connect(self):
-        if await self.accept() is None:
-            await self.close(3000)
+        await self.accept()
+        await self.send_json({'action': 'auth'})
+        await self.close()
 
 class WSTodoemAuth(JWTStatelessUserAuthentication):
     

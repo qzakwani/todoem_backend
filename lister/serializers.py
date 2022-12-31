@@ -5,13 +5,13 @@ from account.models import User
 from .models import ConnectionRequest
 
 
-class ListerProfileSerializer(serializers.ModelSerializer):
+class ListerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'name']
 
 class ConnectionRequestSerializer(serializers.ModelSerializer):
-    sender = ListerProfileSerializer()
+    sender = ListerSerializer()
     class Meta:
         model = ConnectionRequest
         fields = ['id', 'sender', 'sent_at']

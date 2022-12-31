@@ -1,8 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
-from django.db.utils import IntegrityError
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 
 from core.pagination import paginate_list
@@ -10,10 +9,10 @@ from account.decorators import authenticated
 from account.models import User
 
 
-from .models import ConnectionRequest, ConnectedListers
-from .serializers import ConnectionRequestSerializer, ListerProfileSerializer
+from .models import ConnectionRequest, Lister
+from .serializers import ConnectionRequestSerializer, ListerSerializer
 from .exceptions import SearchInvalid
-from .enums import ConnectionStatus
+from .utils import check_connection_status
 
 
 #########################
@@ -23,13 +22,17 @@ from .enums import ConnectionStatus
 @authenticated
 def send_connection_request(req, user_id, *args, **kwargs):
     try:
-        if req.user.id == user_id: return Response({'message': 'can NOT connect with same lister'}, status=status.HTTP_400_BAD_REQUEST)
+        if req.user.id == user_id: 
+            return Response({'message': 'can NOT connect with yourself'}, status=status.HTTP_400_BAD_REQUEST)
+        
         if ConnectionRequest.objects.filter(sender_id=user_id, receiver_id=req.user.id).exists():
-            return Response({'message': 'connection request exists'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message':  'lister already sent a request to you'}, status=status.HTTP_400_BAD_REQUEST)
+        
         ConnectionRequest.objects.create(sender_id=req.user.id, receiver_id=user_id)
+        
         return Response(status=status.HTTP_200_OK)
-    except IntegrityError:
-        return Response({'message': 'integrity error'}, status=status.HTTP_400_BAD_REQUEST)
+    except ValidationError as err:
+        return Response({'message':  err.args[0]}, status=status.HTTP_400_BAD_REQUEST)
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -39,16 +42,14 @@ def send_connection_request(req, user_id, *args, **kwargs):
 @authenticated
 def accept_connection_request(req, user_id, *args, **kwargs):
     try:
-        '''
-        could be improved by minimizing db hits
-        '''
-        connection_request = ConnectionRequest.objects.get(sender_id=user_id, receiver=req.user.id)
-        ConnectedListers.objects.get(user=connection_request.sender).listers.add(connection_request.receiver)
-        ConnectedListers.objects.get(user=connection_request.receiver).listers.add(connection_request.sender)
-        connection_request.delete()
+        i, _ = ConnectionRequest.objects.filter(sender_id=user_id, receiver_id=req.user.id).delete()
+        if i != 1:
+            return Response({'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+        Lister.objects.bulk_create([
+            Lister(user_id=user_id, lister_id=req.user.id),
+            Lister(user_id=req.user.id, lister_id=user_id)
+        ])
         return Response(status=status.HTTP_200_OK)
-    except ObjectDoesNotExist:
-        return Response({'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
@@ -78,11 +79,11 @@ def cancel_connection_request(req, lister_id, *args, **kwargs):
 @authenticated
 def get_connection_request(req, *args, **kwargs):
     try:
-        requests = ConnectionRequest.objects.filter(receiver=req.user.id).order_by('sent_at')
+        requests = ConnectionRequest.objects.filter(receiver_id=req.user.id).order_by('sent_at')
         page_number = req.query_params.get('page', 1)
         page = paginate_list(requests, 10, page_number)
         ser = ConnectionRequestSerializer(page, many=True)
-        return Response({'next': page.has_next(), 'listers': ser.data}, status=status.HTTP_200_OK)
+        return Response({'next': page.has_next(), 'requests': ser.data}, status=status.HTTP_200_OK)
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -91,32 +92,24 @@ def get_connection_request(req, *args, **kwargs):
 ##############
 ##  STATUS  ##
 ##############
-
 @api_view(['GET'])
 @authenticated
 def connection_status(req, lister_id, *args, **kwargs):
     try:
-        conn_status = ConnectionStatus.DISCONNECTED.value
-        if ConnectedListers.objects.filter(user_id=req.user.id, listers__lister=lister_id).exists():
-            conn_status = ConnectionStatus.CONNECTED.value
-        elif ConnectionRequest.objects.filter(receiver=req.user.id, sender=lister_id).exists():
-            conn_status = ConnectionStatus.RECEIVED.value
-        elif ConnectionRequest.objects.filter(receiver=lister_id, sender=req.user.id).exists():
-            conn_status = ConnectionStatus.SENT.value
-        return Response({'status': conn_status}, status=status.HTTP_200_OK)
+        return Response({'status': check_connection_status(req.user.id, lister_id).value}, status=status.HTTP_200_OK)
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 #############
-## Listers ##
+## Listers ##  todo
 #############
 @api_view(['GET'])
 @authenticated
 def list_my_listers(req, *args, **kwargs):
     try:
         page_number = req.query_params.get('page', 1)
-        listers = ConnectedListers.objects.get(user_id=req.user.id).listers.all()
+        listers = Lister.objects.filter(user_id=req.user.id)
         page = paginate_list(listers, 100, page_number)
         ser = ListerProfileSerializer(page, many=True)
         return Response({'next': page.has_next(), 'listers': ser.data}, status=status.HTTP_200_OK)

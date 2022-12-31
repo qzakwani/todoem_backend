@@ -1,15 +1,20 @@
 from django.db import models
 from django.conf import settings
-from account.models import User
 
 
-class ConnectedListers(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user")
-    listers = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name="lister")
+class Lister(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='me')
+    lister = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     
+    date_connected = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'lister'], name='unique_request', violation_error_message='lister connected already')
+        ]
     
     def __str__(self) -> str:
-        return self.user.username
+        return f'{self.user.username} to {self.lister.username}'
 
 
 
@@ -21,7 +26,9 @@ class ConnectionRequest(models.Model):
     sent_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        unique_together = ['sender', 'receiver']
+        constraints = [
+            models.UniqueConstraint(fields=['sender', 'receiver'], name='unique_request', violation_error_message='request has already been sent')
+        ]
 
     
     def __str__(self) -> str:
