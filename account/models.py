@@ -25,7 +25,9 @@ class User(AbstractUser):
     is_phone_number_verified = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
     
+    private = models.BooleanField(default=False)
     
+    # listers = models.ManyToManyField('User', blank=True, through='lister.ConnectedLister')
     
     first_name = None
     last_name = None

@@ -2,12 +2,13 @@ from django.urls import path
 from . import views as v
 
 urlpatterns = [
-    path("create/", v.create_tasklist),
+    path("create/<int:to>/", v.send_tasklist),
     
     # sent
     path('list-sent/', v.list_sent_tasklist),
     path('get-sent-tasks/<int:list_id>/', v.get_sent_tasklist_tasks),
     path('delete-sent/<int:list_id>/', v.delete_sent_tasklist),
+    path('check-delivery/<int:list_id>/', v.check_delivery_status),
     
     
     # received

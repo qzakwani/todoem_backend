@@ -1,9 +1,9 @@
 from .enums import ConnectionStatus
-from .models import Lister, ConnectionRequest
+from .models import ConnectedLister, ConnectionRequest
 
 def check_connection_status(user: int, lister: int):
     conn_status = ConnectionStatus.DISCONNECTED
-    if Lister.objects.filter(user_id=user, lister_id=lister).exists():
+    if ConnectedLister.objects.filter(user_id=user, lister_id=lister).exists():
         conn_status = ConnectionStatus.CONNECTED
     elif ConnectionRequest.objects.filter(sender_id=lister, receiver_id=user).exists():
         conn_status = ConnectionStatus.RECEIVED
@@ -11,3 +11,7 @@ def check_connection_status(user: int, lister: int):
         conn_status = ConnectionStatus.SENT
     
     return conn_status
+
+
+def is_lister(me: int, lister: int):
+    return ConnectedLister.objects.filter(user=me, lister=lister).exists()

@@ -1,20 +1,22 @@
 from django.contrib import admin
 
-from .models import Lister, ConnectionRequest
+from .models import ConnectedLister, ConnectionRequest
 
-class ListerAdmin(admin.ModelAdmin):
+class ConnectedListerAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_connected'
     empty_value_display = '--empty--'
     
     readonly_fields = ('id',)
     list_display = ('user', 'lister', 'date_connected')
     
-    raw_id_fields = ('user', 'lister')
+    raw_id_fields = ('user',)
     
-    search_fields = ['id', 'user__username', 'user__id', 'lister__username', 'lister__id']
+    
+    search_fields = ['user__username', 'user__id']
+    search_help_text = 'search only sender username and id'
 
 
-admin.site.register(Lister, ListerAdmin)
+admin.site.register(ConnectedLister, ConnectedListerAdmin)
 
 
 
@@ -23,7 +25,7 @@ class ConnectionRequestAdmin(admin.ModelAdmin):
     empty_value_display = '--empty--'
     
     readonly_fields = ('id',)
-    list_display = ('sender', 'receiver', 'sent_at')
+    list_display = ('sender', 'sender_id', 'receiver', 'receiver_id', 'sent_at')
     
     raw_id_fields = ('sender', 'receiver')
     

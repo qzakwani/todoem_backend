@@ -2,7 +2,7 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 
-from lister.models import ConnectedListers
+from lister.models import ConnectedLister
 
 from .serializers import TaskGroupTaskSerializer
 from .models import TaskGroupTask, TaskGroup, TaskGroupMember

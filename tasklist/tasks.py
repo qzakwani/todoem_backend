@@ -13,7 +13,7 @@ logger = get_task_logger(__name__)
 
 
 @shared_task(ignore_result=True)
-def send_tasklist(id: int, sender: int, receiver: int, data: dict):
+def send_tasklist_to(id: int, sender: int, receiver: int, data: dict):
     try:
         insert_tasklist(TaskList, TaskListTask, {"id": id, "sender_id": sender, "receiver_id": receiver, **data})
         
