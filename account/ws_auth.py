@@ -5,8 +5,8 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 class DenyUnauthorized(AsyncJsonWebsocketConsumer):
     async def connect(self):
         await self.accept()
-        await self.send_json({'action': 'auth'})
-        await self.close()
+        # await self.send_json({'action': 'auth'})
+        await self.close(3000)
 
 class WSTodoemAuth(JWTStatelessUserAuthentication):
     

@@ -1,10 +1,10 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import IntegrityError
+from django.contrib.auth import get_user_model
 
+from lister.utils import ais_lister
 
-from lister.models import ConnectedLister
-
-from .serializers import TaskGroupTaskSerializer
+from .serializers import TaskGroupTaskSerializer, TaskGroupMemberSerializer
 from .models import TaskGroupTask, TaskGroup, TaskGroupMember
 
 
@@ -17,6 +17,7 @@ from .models import TaskGroupTask, TaskGroup, TaskGroupMember
     target: None | id
     data: None | dict{}
     msg: None | str -> if error
+    pos: None | if change -> str[admin | staff | member]
 } 
 
 ** group communication **
@@ -30,6 +31,7 @@ from .models import TaskGroupTask, TaskGroup, TaskGroupMember
 
 '''
 
+User = get_user_model()
 
 class TaskGroupConsumer(AsyncJsonWebsocketConsumer):
     taskgroup_db = None
@@ -49,10 +51,10 @@ class TaskGroupConsumer(AsyncJsonWebsocketConsumer):
                 return True
             else:
                 return False
-        except ObjectDoesNotExist:
+        except TaskGroupMember.DoesNotExist:
                 await self.accept()
                 await self.send_json({'action': 'error', 'msg': 'you are not part of this group'})
-                await self.close(1000)
+                await self.close()
         except:
             return False
     
@@ -86,13 +88,12 @@ class TaskGroupConsumer(AsyncJsonWebsocketConsumer):
             case 'change':
                 await self.change_perms(content)
             case 'add':
-                await self.add_memeber(content)
+                await self.add_member(content)
             case 'kick':
                 await self.kick_member(content)
             
             case _:
                 await self.send_json({'action': 'error', 'msg': 'action invalid or missing'})
-    
     
     ## * permissions * ##
     async def admin(self):
@@ -103,7 +104,7 @@ class TaskGroupConsumer(AsyncJsonWebsocketConsumer):
             return False
     
     async def staff(self):
-        if self.member.is_staff:
+        if self.member.is_staff or self.member.is_admin:
             return True
         else:
             await self.send_json({'action': 'error', 'msg': 'Unauthorized staff action'})
@@ -120,71 +121,157 @@ class TaskGroupConsumer(AsyncJsonWebsocketConsumer):
 
     ## * creator or admin actions * ## 
     async def terminate(self):
-        try:
-            if await self.admin():
-                i, _ = await TaskGroup.objects.adelete(id=self.taskgroup_id)
-                if i == 0:
-                    await self.send_json({'action': 'error', 'msg': 'termination failed'})
-                    return
-                else:
-                    await self.channel_layer.group_send(self.taskgroup_db, {'type': 'close'})
-        except:
-            await self.close(1013)
+        if await self.admin():
+            i, _ = await TaskGroup.objects.adelete(id=self.taskgroup_id)
+            if i == 0:
+                await self.send_json({'action': 'error', 'msg': 'termination failed'})
+                return
+            else:
+                await self.channel_layer.group_send(self.taskgroup_db, {'type': 'close'})
+
 
     
     ## * admin actions * ##
-    async def add_memeber(self, content):
-        try:
-            member_id = content.get('target', None)
-            if member_id is None:
-                await self.send_json({'action': 'error', 'msg': 'lister not provided'})
-            #todo
-        except ValidationError as err:
-            await self.send_json({'action': 'error', 'msg': err.args[0]})
-        except:
-            await self.send_json({'action': 'error', 'msg': 'addtion failed'})
+    async def add_member(self, content):
+        if await self.admin():
+            try:
+                member_id = content.get('target', None)
+                if member_id is None:
+                    await self.send_json({'action': 'error', 'msg': 'lister not provided'})
+                    return
+                if await ais_lister(self.uid, member_id):
+                    user = await User.objects.aget(id=member_id)
+                    member = await TaskGroupMember.objects.acreate(taskgroup_id=self.taskgroup_id, member=user)
+                    await self.channel_layer.group_send(self.taskgroup_db, 
+                                                        {'type': 'send_response',
+                                                         'content': {
+                                                             'action': 'add',
+                                                             'data': TaskGroupMemberSerializer(member, 
+                                                                                               context={'member': user}).data}})
+                else:
+                    await self.send_json({'action': 'error', 'msg': 'lister not connected'})
+                    return
+            except IntegrityError:
+                await self.send_json({'action': 'error', 'msg': 'lister already added'})
+            except User.DoesNotExist:
+                await self.send_json({'action': 'error', 'msg': 'lister not found'})
+            except:
+                await self.send_json({'action': 'error', 'msg': 'addtion failed'})
     
-    async def kick_memeber(self, content):
-        pass
+    async def kick_member(self, content):
+        if await self.admin():
+            try:
+                member_id = content.get('target', None)
+                if member_id is None:
+                    await self.send_json({'action': 'error', 'msg': 'lister not provided'})
+                    return
+                
+                i, _ = await TaskGroupMember.objects.filter(taskgroup_id=self.taskgroup_id, member_id=member_id).adelete()
+                
+                if i == 0:
+                    raise
+                
+                await self.channel_layer.group_send(self.taskgroup_db, 
+                                                    {'type': 'handel_kick',
+                                                        'content': content
+                                                        }
+                                                    )
+            except:
+                await self.send_json({'action': 'error', 'msg': 'deletion failed'})
     
     async def change_perms(self, content):
-        pass
+        if await self.admin():
+            try:
+                member_id = content.get('target', None)
+                pos = content.get('pos', None)
+                if member_id is None or pos is None:
+                    await self.send_json({'action': 'error', 'msg': 'lister or position not provided'})
+                    return
+                if pos not in ['admin', 'staff', 'member']:
+                    await self.send_json({'action': 'error', 'msg': 'invalid position'})
+                    return 
+                
+                i = await TaskGroupMember.objects.filter(taskgroup_id=self.taskgroup_id, member_id=member_id).aupdate(is_admin=(pos=='admin'), is_staff=(pos=='staff'))
+                
+                if i == 0:
+                    raise
+                
+                await self.channel_layer.group_send(self.taskgroup_db, 
+                                                    {'type': 'send_response',
+                                                        'content': content
+                                                        }
+                                                    )
+            except:
+                await self.send_json({'action': 'error', 'msg': 'change failed'})
 
 
 
     ## * staff actions * ##
     async def create_task(self, content):
         if await self.staff():
-            data = content.get('data', None)
-            ser = TaskGroupTaskSerializer(data=data)
-            if ser.is_valid():
-                task = await TaskGroupTask.objects.acreate(taskgroup_id=self.taskgroup_id, created_by_id=self.uid, **ser.validated_data)
+            try:
+                data = content.get('data', None)
+                ser = TaskGroupTaskSerializer(data=data)
+                if ser.is_valid():
+                    task = await TaskGroupTask.objects.acreate(taskgroup_id=self.taskgroup_id, created_by_id=self.uid, **ser.validated_data)
 
-                await self.channel_layer.group_send(self.taskgroup_db, {'type': 'send_response', 'content': TaskGroupTaskSerializer(task).data})
-                
-            else:
-                await self.send_json({'action': 'error', 'msg': ser.errors})
-
+                    await self.channel_layer.group_send(self.taskgroup_db, {'type': 'send_response', 'content': {
+                        'action': 'create',
+                        'data': TaskGroupTaskSerializer(task).data}
+                    })
+                    
+                else:
+                    await self.send_json({'action': 'error', 'msg': ser.errors})
+            except:
+                await self.send_json({'action': 'error', 'msg': 'creation failed'})
 
     async def delete_task(self, content):
         if await self.staff():
-        
-            task_id = content.get('target', None)
-        
-            if task_id is None:
-                return await self.send_json({'action': 'error', 'msg': 'task id is not provided'})
-            else:
-                i, _ = await TaskGroupTask.objects.filter(id=task_id, taskgroup_id=self.taskgroup_id).adelete()
-                if i != 1:
-                    return await self.send_json({'action': 'error', 'msg': 'deletion failed'})
+            try:
+                task_id = content.get('target', None)
+            
+                if task_id is None:
+                    await self.send_json({'action': 'error', 'msg': 'task id is not provided'})
+                    return
                 else:
-                    await self.channel_layer.group_send(self.taskgroup_db, {'type': 'send_response', 'content': {'action': 'delete', 'target': task_id}})
+                    i, _ = await TaskGroupTask.objects.filter(id=task_id, taskgroup_id=self.taskgroup_id).adelete()
+                    if i != 1:
+                        return await self.send_json({'action': 'error', 'msg': 'task not found'})
+                    else:
+                        await self.channel_layer.group_send(self.taskgroup_db, {'type': 'send_response', 'content': {'action': 'delete', 'target': task_id, 'by': self.uid}})
+            except:
+                await self.send_json({'action': 'error', 'msg': 'deletion failed'})
 
 
     async def edit_task(self, content):
-        pass
+        if await self.staff():
+            try:
+                task_id = content.get('target', None)
+                if task_id is None:
+                    await self.send_json({'action': 'error', 'msg': 'task id is not provided'})
+                    return
+                
+                data = content.get('data', None)
+                ser = TaskGroupTaskSerializer(data=data)
+                
+                if ser.is_valid():
+        
+                    i = await TaskGroupTask.objects.filter(id=task_id, taskgroup_id=self.taskgroup_id).aupdate(edited=True, **ser.validated_data)
+                    
+                    if i == 0:
+                        await self.send_json({'action': 'error', 'msg': 'task not found'})
+                        return
+                    
+                    await self.channel_layer.group_send(self.taskgroup_db, {'type': 'send_response', 'content': {'action': 'delete', 'target': task_id, 'data': ser.data}})
+                    
+                else:
+                    await self.send_json({'action': 'error', 'msg': ser.errors})
+            except Exception as e:
+                print(type(e))
+                print(e.args)
+                await self.send_json({'action': 'error', 'msg': 'edit failed'})
 
-    
+#todo HERE
     
     ## * member actions * ##
     async def complete_task(self, content):
@@ -208,3 +295,13 @@ class TaskGroupConsumer(AsyncJsonWebsocketConsumer):
     ## * group actions * ##
     async def send_response(self, event):
         await self.send_json(event['content'])
+        
+    
+    
+    async def handel_kick(self, event):
+        id = event['content']['target']
+        await self.send_json(event['content'])    
+        if int(id) == self.uid:
+            await self.close()
+        
+

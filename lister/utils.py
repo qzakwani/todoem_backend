@@ -15,3 +15,7 @@ def check_connection_status(user: int, lister: int):
 
 def is_lister(me: int, lister: int):
     return ConnectedLister.objects.filter(user=me, lister=lister).exists()
+
+
+async def ais_lister(me: int, lister: int):
+    return await ConnectedLister.objects.filter(user=me, lister=lister).aexists()

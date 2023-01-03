@@ -6,10 +6,10 @@ class ConnectedListerAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_connected'
     empty_value_display = '--empty--'
     
-    readonly_fields = ('id',)
+    readonly_fields = ('id', 'date_connected')
     list_display = ('user', 'lister', 'date_connected')
     
-    raw_id_fields = ('user',)
+    raw_id_fields = ('user', 'lister')
     
     
     search_fields = ['user__username', 'user__id']

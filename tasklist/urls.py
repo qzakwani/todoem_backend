@@ -2,7 +2,7 @@ from django.urls import path
 from . import views as v
 
 urlpatterns = [
-    path("create/<int:to>/", v.send_tasklist),
+    path("send/<int:to>/", v.send_tasklist),
     
     # sent
     path('list-sent/', v.list_sent_tasklist),

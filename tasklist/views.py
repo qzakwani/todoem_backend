@@ -20,7 +20,7 @@ from .models import SentTaskList, SentTaskListTask, TaskList, TaskListTask
 ################
 @api_view(['POST'])
 @authenticated
-def send_tasklist(req, to, *args, **kwargs):
+def send_tasklist(req, to, *args, **kwargs):        
     try:
         if not is_lister(req.user.id, to):
             return Response({'message': 'not connected lister'}, status=status.HTTP_403_FORBIDDEN)

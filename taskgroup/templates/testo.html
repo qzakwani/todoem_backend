@@ -12,30 +12,45 @@
             align-items: center;
             justify-content: center;
             gap: 1rem;
+            flex-direction: column;
         }
     </style>
     <title>Document</title>
 </head>
 <body>
     
-    <input type="text">
+    <div style="padding: 2rem;">
+        <h1>Login</h1>
+        <input type="text" id="username" placeholder="username">
+        <input type="text" id="pass" placeholder="pass">
+        <button onclick="login()">LOGIN</button>
+    </div>
 
-    <button onclick="login()">LOGIN</button>
+    <div style="padding: 2rem;">
+        <h1>Request</h1>
+        <input type="text" placeholder="action" id="action">
+        <input type="number" id="target" placeholder="target">
+        <input type="text" placeholder="position" id="pos">
+        <input type="datetime-local" id="d">
+        <button onclick="add()">SEND</button>
+    </div>
+        <input type="number" id="taskgroup">
     <button onclick="connictSocket()">CONNECT</button>
-    <button onclick="add()">ADD</button>
     <button onclick="disc()">DISCONNECT</button>
 
 
 
     <script>
         async function login(){
+            username = document.getElementById('username').value;
+            pass = document.getElementById('pass').value;
             fetch('http://' + window.location.host +'/account/login/', {
                 headers: {
       'Content-Type': 'application/json'
       // 'Content-Type': 'application/x-www-form-urlencoded',
     },
                 method: 'POST',
-                body: JSON.stringify({username: "admin", password: "admin"})
+                body: JSON.stringify({username: username, password: pass})
             }).then(res => res.json()).then(
                 data => console.log(data)
             )
@@ -44,7 +59,8 @@
 
         let socket;
         function connictSocket(){
-            socket = new WebSocket('ws://' + window.location.host + '/ws/taskgroup/27/');
+            taskgroup = document.getElementById('taskgroup').value;
+            socket = new WebSocket('ws://' + window.location.host + '/ws/taskgroup/' + taskgroup + '/');
             socket.onclose = (event) => {
                 console.log(event.code);
             }
@@ -57,12 +73,23 @@
         }
 
         function add(){
-            socket.send(JSON.stringify(
-                {"action": "add", "target": 10}
-            ))
+            action = document.getElementById('action').value || '';
+            target = document.getElementById('target').value || 0;
+            pos = document.getElementById('pos').value;
+            d = document.getElementById('d').value;
+            socket.send(JSON.stringify({
+                "action": "edit",
+              "target": target,
+                "data": {
+                    "task": "Changed",
+                    "description": "No",
+                    "due": d,
+                    "comment": "HALA"
+                }
+
+            }))
         }
 
-        
     </script>
 
 
