@@ -1,8 +1,9 @@
-Hi {{ username }},
+Hi {{ name }},
 
 Please click the link below to verify your email.
 
 
+NOTE: the link valid for THREE days only!
 {{ link }}
 
 

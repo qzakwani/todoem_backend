@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import User
-from .forms import UserCreationForm, UserChangeForm
+from .forms import AdminSiteUserCreationForm, AdminSiteUserChangeForm
 
 
 class UserAdmin(admin.ModelAdmin):    
@@ -17,9 +17,9 @@ class UserAdmin(admin.ModelAdmin):
     
     def get_form(self, request, obj=None, change=False, **kwargs):
         if obj is None:
-            kwargs['form'] = UserCreationForm
+            kwargs['form'] = AdminSiteUserCreationForm
         else:
-            kwargs['form'] = UserChangeForm
+            kwargs['form'] = AdminSiteUserChangeForm
         return super().get_form(request, obj, change, **kwargs)
 
 admin.site.register(User, UserAdmin)

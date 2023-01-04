@@ -1,77 +1,72 @@
-from datetime import datetime, timedelta
 from cryptography.fernet import Fernet
-from django.utils import timezone
+from datetime import timedelta
 from django.conf import settings
 
-#! Time and date functonality dont work
+from .dt import TodoemDT
+
+KEY = settings.VERIFICATION_KEY.encode()
+ALGO = Fernet(KEY)
 
 class TodoemEncryption:
+    EXPIRED_PERIOD = timedelta(days=3)
     
-    _data = None
-    _token = None
-    _date = None
+    @staticmethod
+    def encrypt(data: str) -> str:
+        # only for strings
+        return ALGO.encrypt(data.encode()).decode()
     
-    def __init__(self, data: str = None, token: str = None) -> None:
-        self._key = settings.VERIFICATION_KEY.encode()
-        self._algo = Fernet(self._key)
-        self._token = token
-        self._data = data
+    @staticmethod
+    def decrypt(token: str) -> str:
+        # only for strings
+        return ALGO.decrypt(token.encode()).decode()
     
+    @staticmethod
+    def format_dict(data: dict[str,str]):
+        '''
+        Format dict -> str to encrypt 
+        
+        format 'key1:|:value1;;key2:|:value2;;...;;keyn:|:valuen'
+        
+        avoid using special charecters: ':|:' and ';;' in data
+        '''
+        if not data:
+            raise Exception('data is empty')
+        
+        raw_list = []
+        for key, value in data.items():
+            raw_list.append(f'{key}:|:{value}')
+        
+        return ";;".join(raw_list)
     
-    @property
-    def key(self) -> str:
-        return self._key.decode()
-    
-    @property
-    def data(self) -> str:
-        return self._data
-    
-    @property
-    def token(self) -> str:
-        return self._token
-    
-    @property
-    def date(self) -> datetime:
-        return self._date
-    
-    
-    def encrypt_with_date(self, data: str = None, day: int = 3) -> str:
-        if data is None: 
-            assert self._data is not None, 'data not provided'
-            data = self._data
-        self._date = timezone.now() + timedelta(days=day)
-        token = self._algo.encrypt(f"{data}|{self._date.strftime('%Y-%m-%d %H:%M:%S')}".encode())
-        self._token = token.decode()
-        return self._token
-    
-    
-    def decrypt_with_date(self, token: str = None) -> tuple[str, datetime]:
-        raw = self.decrypt(token=token)
-        sep = raw.split('|') 
-        self._data = sep[0]
-        self._date = datetime.strptime(sep[1], '%Y-%m-%d %H:%M:%S')
-        return (self._data, self._date)
+    @staticmethod 
+    def deformat_dict(data: str) -> dict:
+        # deformatting 
+        result = {}
+        statements = data.split(';;')
+        for statement in statements:
+            temp = statement.split(':|:')
+            result[temp[0]] = temp[1]
+        return result
     
     
-    def encrypt(self, data: str = None) -> str:
-        if data is None: 
-            assert self._data is not None, 'data not provided'
-            data = self._data
-        token = self._algo.encrypt(data.encode())
-        self._token = token.decode()
-        return self._token
+    @classmethod
+    def encrypt_dict(cls, data: dict[str, str], expire: bool=False, delta: timedelta|None=None):
+        if expire:
+            data['expire'] = TodoemDT.now_delta(delta=cls.EXPIRED_PERIOD if delta is None else delta, string=True)
+
+        str_data = cls.format_dict(data)
+        return cls.encrypt(str_data)
     
-    
-    def decrypt(self, token: str = None) -> str:
-        if token is None: 
-            assert self._token is not None, 'token not provided'
-            token = self._token
-        self._data = self._algo.decrypt(token.encode()).decode()
-        return self._data
-    
-    
-    def is_expired(self, date: datetime = None) -> bool:
-        if date is None: 
-            assert self._date is not None, 'date not provided'
-            date = self._date
-        return timezone.now() > date
+    @classmethod
+    def decrypt_dict(cls, token: str) -> tuple[dict, bool]:
+        raw_data = cls.decrypt(token)
+        data = cls.deformat_dict(raw_data)
+        expire = data.get('expire', None)
+        if expire is not None:
+            return data, TodoemDT.compare(expire, '>')
+        return data, True
+
+
+
+class TodoemTokenError(Exception):
+    pass

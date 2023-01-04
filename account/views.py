@@ -4,18 +4,25 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
-from core.encryption import TodoemEncryption
 
 from .serializers import UserSerializer, LoginTokenSerializer, UpdateUserSerializer
 from .decorators import authenticated, reauthenticate
 from .exceptions import MissingInput, InvalidPassword
 from .models import User
 from .validators import validate_username 
-from .utils import send_verification_email, get_base_url, send_reset_password_email, dict_email_data
+from .forms import ForgotPasswordForm
+from .utils import (
+    send_verification_email, 
+    get_base_url, 
+    send_reset_password_email, 
+    validate_email_token,
+    TodoemTokenError
+    )
 
 @api_view(['POST'])
 def sign_up(req, *args, **kwargs):
@@ -63,7 +70,7 @@ def get_user(req, *args, **kwargs):
         user = User.objects.get(id=req.user.id)
         ser = UserSerializer(user)
         return Response(ser.data, status=status.HTTP_200_OK)
-    except ObjectDoesNotExist:
+    except User.DoesNotExist:
         return Response({"message": "user not found"}, status=status.HTTP_404_NOT_FOUND)
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -128,9 +135,15 @@ def request_email_verification(req, *args, **kwargs):
         if email is None: 
             raise MissingInput("email not provided")
         validate_email(email)
-        User.objects.filter(id=req.user.id).update(email=email, is_email_verified=False)
-        send_verification_email(email, get_base_url(req))
-        return Response(status=status.HTTP_202_ACCEPTED)
+        i = User.objects.filter(id=req.user.id).update(email=email, is_email_verified=False)
+        if i == 1:
+            user = User.objects.get(id=req.user.id)
+            send_verification_email(user, get_base_url(req))
+            return Response(status=status.HTTP_202_ACCEPTED)
+        else:
+            raise
+    except User.DoesNotExist:
+        return Response({'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
     except MissingInput as err:
         return Response({'message': err.args[0]}, status=status.HTTP_400_BAD_REQUEST)
     except ValidationError:
@@ -146,24 +159,28 @@ def resend_email_verification(req, *args, **kwargs):
     try:
         user = User.objects.get(id=req.user.id)
         if user.email and not user.is_email_verified:
-            send_verification_email(user.email, get_base_url(req))
+            send_verification_email(user, get_base_url(req))
             return Response(status=status.HTTP_202_ACCEPTED)
         return Response({'message': "email not found or already verified"}, status=status.HTTP_404_NOT_FOUND)
+    except User.DoesNotExist:
+        return Response({'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def verify_email(request, token, *args, **kwargs):
     try:
-        enc = TodoemEncryption(token=token)
-        email = enc.decrypt()
-        res = User.objects.filter(email=email, is_email_verified=False).update(is_email_verified=True)
-        if res != 1: raise ObjectDoesNotExist()
-        return render(request, 'email_verified.html', {'email': email})
-    except ObjectDoesNotExist:
+        user = validate_email_token(token, 'verify-email')
+        res = User.objects.filter(id=user.id, is_email_verified=False).update(is_email_verified=True)
+        if res != 1: 
+            raise User.DoesNotExist()
+        return render(request, 'email_verified.html', {'email': user.email})
+    except User.DoesNotExist:
         return render(request, 'account_not_found.html')
-    except Exception as e:
-        return render(request, 'error.html')
+    except TodoemTokenError as e:
+        return render(request, 'error.html', {'error': e.args[0]})
+    except:
+        return render(request, 'error.html', {'error': 'something went wrong'})
 
 
 
@@ -188,9 +205,9 @@ def forgot_password(req, *args, **kwargs):
         if email is None: 
             raise MissingInput("email not provided")
         validate_email(email)
-        user = User.objects.get(email=email)
+        user = User.objects.get(email=email, is_email_verified=True)
         
-        send_reset_password_email(email, get_base_url(req), user)
+        send_reset_password_email(user, get_base_url(req))
         
         return Response(status=status.HTTP_202_ACCEPTED)
     except MissingInput as err:
@@ -202,12 +219,24 @@ def forgot_password(req, *args, **kwargs):
     except:
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-def rest_forgot_password(request, raw_token, *args, **kwargs):
+@csrf_exempt
+def rest_forgot_password(request, token, *args, **kwargs):
     try:
-        enc = TodoemEncryption(token=raw_token)
-        content = dict_email_data(enc.decrypt())
-        if not content['action'] == 'reset-password':
-            raise
-    except:
-        pass
+        if request.method == 'POST':
+            user = validate_email_token(token, 'forgot-password')
+            form = ForgotPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                return render(request, 'forgot_password.html', {'is_success': True, 'user': user})
+            else:
+                return render(request, 'forgot_password.html', {'is_form': True, 'form': form})
+        else:
+            form = ForgotPasswordForm()
+            return render(request, 'forgot_password.html', {'is_form': True, 'form': form})
+    except TodoemTokenError as e:
+        return render(request, 'forgot_password.html', {'is_error': True, 'msg': e.args[0]})
+    except Exception as err:
+        print(type(err))
+        print(err.args)
+        return render(request, 'forgot_password.html', {'is_error': True, 'msg': 'something went wrong'})
+

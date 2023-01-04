@@ -17,6 +17,9 @@ urlpatterns = [
     path('verify-email/', v.request_email_verification),
     path('verify-email/resend/', v.resend_email_verification),
     path('verify-email/<str:token>/', v.verify_email),
+    # forgot password
+    path('frogot-password/', v.forgot_password),
+    path('frogot-password/<str:token>/', v.rest_forgot_password),
     
     
     path('deactivate/', v.deactivate_account)

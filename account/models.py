@@ -29,9 +29,17 @@ class User(AbstractUser):
     
     # listers = models.ManyToManyField('User', blank=True, through='lister.ConnectedLister')
     
+    last_modified = models.DateTimeField(auto_now=True)
+    
     first_name = None
     last_name = None
     last_login = None
+    
+    
+    @property
+    def display_name(self):
+        return self.name or self.username
+
     
     def __str__(self):
         return self.username
