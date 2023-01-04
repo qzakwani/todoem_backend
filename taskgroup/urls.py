@@ -5,17 +5,19 @@ from . import views as v
 
 
 urlpatterns = [
-    # path('create/', v.create_taskgroup),
-    # path('update/<int:taskgroup_id>/', v.update_taskgroup),
-    # path('delete/<int:taskgroup_id>/', v.delete_taskgroup),
+    path('create/', v.create_taskgroup),
+    path('<int:taskgroup_id>/update/', v.update_taskgroup),
     
-    # path('', v.my_taskgroup),
-    # path('all/', v.list_taskgroup),
+    path('<int:taskgroup_id>/', v.get_taskgroup),
+    path('my/', v.list_my_taskgroup),
+    path('all/', v.list_all_taskgroup),
+    
+    path('<int:taskgroup_id>/member/<int:lister_id>/', v.get_member),
+    path('<int:taskgroup_id>/member/', v.get_all_members),
     
     
-    # # Admin Action
-    # path('add-member/<int:taskgroup_id>/<int:member_id>/', v.add_member),
-    # path('kick-member/<int:taskgroup_id>/<int:member_id>/', v.kick_member),
+    path('<int:taskgroup_id>/task/<int:task_id>/', v.get_task),
+    path('<int:taskgroup_id>/task/', v.get_all_tasks),
     
-    path('t/', v.testo)
+    # path('t/', v.testo)
 ]

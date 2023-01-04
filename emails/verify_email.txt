@@ -1,4 +1,4 @@
-Hi,
+Hi {{ username }},
 
 Please click the link below to verify your email.
 

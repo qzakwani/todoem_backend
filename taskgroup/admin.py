@@ -24,7 +24,7 @@ class TaskGroupTaskAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     empty_value_display = '--empty--'
     
-    readonly_fields = ('id', 'created_at')
+    readonly_fields = ('id', 'created_at', 'last_modified')
     list_display = ('id', 'taskgroup', 'created_at')
     
     

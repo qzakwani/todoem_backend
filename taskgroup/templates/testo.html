@@ -78,14 +78,8 @@
             pos = document.getElementById('pos').value;
             d = document.getElementById('d').value;
             socket.send(JSON.stringify({
-                "action": "edit",
+                "action": 'add',
               "target": target,
-                "data": {
-                    "task": "Changed",
-                    "description": "No",
-                    "due": d,
-                    "comment": "HALA"
-                }
 
             }))
         }

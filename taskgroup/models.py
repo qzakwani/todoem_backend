@@ -12,8 +12,8 @@ class TaskGroup(models.Model):
     name = models.CharField(max_length=150)
     purpose = models.CharField(max_length=250)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET(get_sentinel_user), related_name='taskgroup_creator')
-    members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TaskGroupMember') 
     
+    members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TaskGroupMember')
     
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -50,6 +50,6 @@ class TaskGroupTask(models.Model):
     due = models.DateTimeField(blank=True, null=True)
     edited = models.BooleanField(default=False)
     
-    last_modified = models.DateTimeField(auto_now=True)
+    last_modified = models.DateTimeField(blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)

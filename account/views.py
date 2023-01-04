@@ -15,7 +15,7 @@ from .decorators import authenticated, reauthenticate
 from .exceptions import MissingInput, InvalidPassword
 from .models import User
 from .validators import validate_username 
-from .utils import send_verification_email, get_base_url
+from .utils import send_verification_email, get_base_url, send_reset_password_email, dict_email_data
 
 @api_view(['POST'])
 def sign_up(req, *args, **kwargs):
@@ -125,7 +125,8 @@ def change_username(req, user: User, *args, **kwargs):
 def request_email_verification(req, *args, **kwargs):
     try:
         email = req.data.get("email", None)
-        if email is None: raise MissingInput("email not provided")
+        if email is None: 
+            raise MissingInput("email not provided")
         validate_email(email)
         User.objects.filter(id=req.user.id).update(email=email, is_email_verified=False)
         send_verification_email(email, get_base_url(req))
@@ -170,7 +171,43 @@ def verify_email(request, token, *args, **kwargs):
 @authenticated
 @reauthenticate
 def deactivate_account(req, user: User, *args, **kwargs):
-    i, _ = user.delete()
-    if i != 1:
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response(status=status.HTTP_202_ACCEPTED)
+    try:
+        i, _ = user.delete()
+        if i != 1:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_202_ACCEPTED)
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+@api_view(['POST'])
+def forgot_password(req, *args, **kwargs):
+    try:
+        email = req.data.get("email", None)
+        if email is None: 
+            raise MissingInput("email not provided")
+        validate_email(email)
+        user = User.objects.get(email=email)
+        
+        send_reset_password_email(email, get_base_url(req), user)
+        
+        return Response(status=status.HTTP_202_ACCEPTED)
+    except MissingInput as err:
+        return Response({'message': err.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+    except ValidationError:
+        return Response({'message': "invalid email"})
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_202_ACCEPTED)
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def rest_forgot_password(request, raw_token, *args, **kwargs):
+    try:
+        enc = TodoemEncryption(token=raw_token)
+        content = dict_email_data(enc.decrypt())
+        if not content['action'] == 'reset-password':
+            raise
+    except:
+        pass
