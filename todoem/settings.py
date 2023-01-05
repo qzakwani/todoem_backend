@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "lister",
     "tasklist",
     "taskgroup",
+    "docs",
     
     "core",
     
@@ -66,7 +67,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            f'{BASE_DIR}/emails/'
+            f'{BASE_DIR}/emails/',
             ],
         "APP_DIRS": True,
         "OPTIONS": {

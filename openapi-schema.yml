@@ -1,0 +1,1112 @@
+openapi: 3.0.2
+info:
+  title: ''
+  version: ''
+paths:
+  /account/:
+    get:
+      operationId: listwrapper_funcs
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - Bitch
+  /task/{task_id}/:
+    get:
+      operationId: retrievewrapper_func
+      description: ''
+      parameters:
+      - name: task_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - task
+  /task/list/:
+    get:
+      operationId: listwrapper_funcs
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - task
+  /lister/{lister_id}/:
+    get:
+      operationId: retrievewrapper_func
+      description: ''
+      parameters:
+      - name: lister_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - lister
+  /lister/connection-requests/:
+    get:
+      operationId: listwrapper_funcs
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - lister
+  /lister/connection-status/{lister_id}/:
+    get:
+      operationId: retrievewrapper_func
+      description: ''
+      parameters:
+      - name: lister_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - lister
+  /lister/my-listers/:
+    get:
+      operationId: listwrapper_funcs
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - lister
+  /tasklist/list-sent/:
+    get:
+      operationId: listwrapper_funcs
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - tasklist
+  /tasklist/get-sent-tasks/{list_id}/:
+    get:
+      operationId: retrievewrapper_func
+      description: ''
+      parameters:
+      - name: list_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - tasklist
+  /tasklist/check-delivery/{list_id}/:
+    get:
+      operationId: retrievewrapper_func
+      description: ''
+      parameters:
+      - name: list_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - tasklist
+  /tasklist/list/:
+    get:
+      operationId: listwrapper_funcs
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - tasklist
+  /tasklist/get-tasks/{list_id}/:
+    get:
+      operationId: retrievewrapper_func
+      description: ''
+      parameters:
+      - name: list_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - tasklist
+  /taskgroup/{taskgroup_id}/:
+    get:
+      operationId: retrievewrapper_func
+      description: ''
+      parameters:
+      - name: taskgroup_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - taskgroup
+  /taskgroup/my/:
+    get:
+      operationId: listwrapper_funcs
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - taskgroup
+  /taskgroup/all/:
+    get:
+      operationId: listwrapper_funcs
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - taskgroup
+  /taskgroup/{taskgroup_id}/member/{lister_id}/:
+    get:
+      operationId: retrievewrapper_func
+      description: ''
+      parameters:
+      - name: taskgroup_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: lister_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - taskgroup
+  /taskgroup/{taskgroup_id}/member/:
+    get:
+      operationId: listwrapper_funcs
+      description: ''
+      parameters:
+      - name: taskgroup_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - taskgroup
+  /taskgroup/{taskgroup_id}/task/{task_id}/:
+    get:
+      operationId: retrievewrapper_func
+      description: ''
+      parameters:
+      - name: taskgroup_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: task_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - taskgroup
+  /taskgroup/{taskgroup_id}/task/:
+    get:
+      operationId: listwrapper_funcs
+      description: ''
+      parameters:
+      - name: taskgroup_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - taskgroup
+  /account/login/:
+    post:
+      operationId: createLoginToken
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginToken'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginToken'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginToken'
+          description: ''
+      tags:
+      - account
+  /account/login/refresh/:
+    post:
+      operationId: createTokenRefresh
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+      tags:
+      - account
+  /account/sign-up/:
+    post:
+      operationId: createsign_up
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - account
+  /account/change-password/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - account
+  /account/change-username/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - account
+  /account/verify-email/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - account
+  /account/verify-email/resend/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - account
+  /account/forgot-password/:
+    post:
+      operationId: createforgot_password
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - account
+  /account/deactivate/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - account
+  /task/create/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - task
+  /task/update/{task_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: task_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - task
+  /task/complete/{task_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: task_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - task
+  /task/uncomplete/{task_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: task_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - task
+  /lister/connection-request/{user_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - lister
+  /lister/connection-accept/{user_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - lister
+  /lister/connection-reject/{user_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - lister
+  /lister/connection-cancel/{lister_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: lister_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - lister
+  /lister/disconnect/{lister_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: lister_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - lister
+  /lister/search/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - lister
+  /tasklist/send/{to}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: to
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - tasklist
+  /tasklist/complete/{list_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: list_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - tasklist
+  /tasklist/complete/{list_id}/{task_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: list_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: task_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - tasklist
+  /tasklist/uncomplete/{list_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: list_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - tasklist
+  /tasklist/uncomplete/{list_id}/{task_id}/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: list_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: task_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - tasklist
+  /taskgroup/create/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - taskgroup
+  /taskgroup/{taskgroup_id}/update/:
+    post:
+      operationId: createwrapper_func
+      description: ''
+      parameters:
+      - name: taskgroup_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - taskgroup
+  /account/update/:
+    put:
+      operationId: updatewrapper_func
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - account
+  /task/delete/{task_id}/:
+    delete:
+      operationId: destroywrapper_func
+      description: ''
+      parameters:
+      - name: task_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - task
+  /task/delete-all-completed/:
+    delete:
+      operationId: destroywrapper_func
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - task
+  /task/delete-all/:
+    delete:
+      operationId: destroywrapper_func
+      description: ''
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+      - task
+  /tasklist/delete-sent/{list_id}/:
+    delete:
+      operationId: destroywrapper_func
+      description: ''
+      parameters:
+      - name: list_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - tasklist
+  /tasklist/delete/{list_id}/:
+    delete:
+      operationId: destroywrapper_func
+      description: ''
+      parameters:
+      - name: list_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - tasklist
+components:
+  schemas:
+    LoginToken:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - username
+      - password
+    TokenRefresh:
+      type: object
+      properties:
+        refresh:
+          type: string
+        access:
+          type: string
+          readOnly: true
+      required:
+      - refresh
