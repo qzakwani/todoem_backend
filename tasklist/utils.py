@@ -2,6 +2,18 @@
 
 
 def insert_tasklist(model_list, model_task, data):
+    """
+    Insert a task list and its tasks into the database.
+
+    Parameters:
+        model_list (Type[Model]): The model class for the task list.
+        model_task (Type[Model]): The model class for the tasks.
+        data (Dict[str, Any]): The data for the task list and tasks. 
+            It should contain a 'tasks' key with a list of dictionaries representing the tasks.
+
+    Returns:
+        task_list (Model): The task list model instance that was created.
+    """
     tasks = data.pop("tasks")
     tasks_num = len(tasks)
     bulk_tasks = []

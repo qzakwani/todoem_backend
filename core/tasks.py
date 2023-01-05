@@ -16,6 +16,21 @@ def send_todoem_email(
     subj: str, 
     template: str, 
     ctx: dict = None):
+    """
+    Sends an email through the Django email backend.
+    
+    Args:
+        name: The name of the sender.
+        from_username: The username part of the sender's email address.
+        to: A list of recipient email addresses.
+        subj: The subject of the email.
+        template: The path to the email template.
+        ctx (optional): A dictionary of context variables to use in the email template. Default is None.
+        
+    Raises:
+        AnymailError: If there is an error sending the email through the Anymail backend.
+        Exception: If there is any other error sending the email.
+    """
     
     _from = f"{name} <{from_username}{settings.MAIN_EMAIL_DOMAIN}>"
     try:

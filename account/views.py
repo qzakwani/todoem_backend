@@ -9,6 +9,7 @@ from django.core.validators import validate_email
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 
+from core.utils import get_base_url
 
 from .serializers import UserSerializer, LoginTokenSerializer, UpdateUserSerializer
 from .decorators import authenticated, reauthenticate
@@ -18,7 +19,6 @@ from .validators import validate_username
 from .forms import ForgotPasswordForm
 from .utils import (
     send_verification_email, 
-    get_base_url, 
     send_reset_password_email, 
     validate_email_token,
     TodoemTokenError

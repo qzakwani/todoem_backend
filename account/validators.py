@@ -18,6 +18,18 @@ username_regex = re.compile(
 
 
 def is_safe_username(username, regex=username_regex, min_length=3):
+    """
+    Check if a username is safe to use.
+    
+    Parameters:
+        username (str): The username to check.
+        regex (str): A regular expression to check the username against. 
+                    Default is the regex defined in the username_regex variable.
+        min_length (int): The minimum length for the username. Default is 3.
+    
+    Returns:
+        bool: True if the username is safe to use, False otherwise.
+    """
     if len(username) < min_length:
         return False
     if not re.match(regex, username):

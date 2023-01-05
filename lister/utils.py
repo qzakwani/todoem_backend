@@ -13,7 +13,7 @@ def check_connection_status(user: int, lister: int):
     return conn_status
 
 
-def is_lister(me: int, lister: int):
+def is_lister(me: int, lister: int) -> bool:
     return ConnectedLister.objects.filter(user=me, lister=lister).exists()
 
 
