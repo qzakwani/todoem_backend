@@ -1,0 +1,25 @@
+{% extends "docs/base.html" %}
+
+{% block title %}URLs{% endblock title %}
+
+{% block head %} 
+    <style>
+        h3 {
+            padding: 2rem 0 0 1rem;
+        }
+        .paths {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 1rem 3rem;
+        }
+    </style>
+{% endblock head %}
+{% block body %}
+    <h3>Base: {{ base }}</h3>
+    <div class="paths">
+        {% for path in paths %}
+          <p>{{ path }}</p>
+        {% endfor %}
+    </div>
+{% endblock body %}

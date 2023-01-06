@@ -201,3 +201,35 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+
+
+################
+###   DOCS   ###
+################
+DOCS = {
+    "META": {
+        "openapi": "3.0.3",
+        "info": {
+            "title": "todoem API",
+            "version": "1.0.0"
+        },
+    },
+    "SERVERS": {
+        "ADD_CURRENT": True,
+        "ADD_ALLOWED": False,
+        "ADD": None
+        },
+    "JWT_SECURITY": {
+        "ADD": True,
+        "ALL": True,
+    },
+    
+    "TAGS": [
+            {"name": "Account"},
+            {"name": "Lister"},
+            {"name": "Task"},
+            {"name": "TaskList"},
+            {"name": "TaskGroup"},
+        ],
+}

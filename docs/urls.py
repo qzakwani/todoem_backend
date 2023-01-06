@@ -3,5 +3,8 @@ from . import views as v
 
 urlpatterns = [
     path("", v.docs),
-    path("schema/", v.schema, name='schema'),
+    path("schema/", v.hello, name='schema'),
+    path("urls/", v.list_urls, name='urls'),
+    path("t/", v.hello, name='ccc'),
+    
 ]

@@ -1,4 +1,6 @@
 import re
+from django.db import models
+
 
 PARAM_PATTERN = re.compile(r'<(int|str):(\w+)>')
 
@@ -36,3 +38,33 @@ def format_url(url: str) -> str:
     formatted_url = formatted_url.replace(">", "}")
     return formatted_url
 
+
+
+def field_mapper(field) -> str|tuple[str, str]:
+    if isinstance(field, (models.BigAutoField, models.PositiveBigIntegerField, models.ForeignKey)):
+        return "integer"
+    if isinstance(field, models.BooleanField):
+        return "boolean"
+    if isinstance(field, models.DateTimeField):
+        return "string", "date-time"
+    if isinstance(field, models.EmailField):
+        return "string", "email" 
+    return "string"
+
+def create_base_schema(model):
+    base_schema = {model.__name__: {}}
+    fields = model._meta.local_fields
+    for field in fields:
+        type_ = field_mapper(field)
+        if isinstance(type_, tuple):
+            base_schema[model.__name__][field.name] = {
+                "type": type_[0],
+                "format": type_[1],
+                "required": field.blank
+            }
+        else:
+            base_schema[model.__name__][field.name] = {
+                "type": type_,
+                "required": field.blank
+            }
+    return base_schema

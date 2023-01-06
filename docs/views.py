@@ -1,46 +1,20 @@
 from django.shortcuts import render
+from django.contrib.admin.views.decorators import staff_member_required
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from django.conf import settings
-def docs(request, *args, **kwargs):
-    return render(request, 'docs.html')
+from .schemas import schema
+from core.utils import get_base_url, get_urls
 
-@api_view(['GET'])
-def schema(request, *args, **kwargs):
-    return Response({
-  "openapi": "3.0.0",
-  "info": {
-    "title": "Sample API",
-    "description": "This is a sample API for demonstrating OpenAPI 3.0.",
-    "version": "1.0.0"
-  },
-  "servers": [
-    {
-      "url": "https://api.example.com/v1"
-    }
-  ],
-  "paths": {
-    "/users": {
-      "get": {
-        "summary": "Get a list of users",
-        "operationId": "getUsers",
-        "responses": {
-          "200": {
-            "description": "A list of users",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    }
-    })
+def docs(request, *args, **kwargs):
+    return render(request, 'docs/docs.html')
+
+@staff_member_required
+def list_urls(request, *args, **kwargs):
+  return render(request, "docs/urls.html", {"base": get_base_url(request), "paths": get_urls()})
+
+
+@api_view(["GET"])
+def hello(req, *args, **kwargs):
+  return Response(schema(req).base_schema)
