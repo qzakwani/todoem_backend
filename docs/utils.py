@@ -1,70 +1,63 @@
-import re
-from django.db import models
+from django.urls import get_resolver, URLResolver, URLPattern
+from rest_framework.views import APIView
 
-
-PARAM_PATTERN = re.compile(r'<(int|str):(\w+)>')
-
-def has_params(url: str) -> bool:
-    return "<" in url
-
-def extract_params(url: str) -> list[tuple[str, str]]:    
-    # Find all the matches of the pattern in the string
-    matches = PARAM_PATTERN.finditer(url)
-    
-    params = []
-    for match in matches:
-        # Get the values of "type" and "anyword"
-        type_ = match.group(1)
-        param = match.group(2)
+class APIEndpoint:
+    @classmethod
+    def get_endpoints(cls, ignore: None|list) -> list[tuple[str,tuple[str]]]:
+        """
+        Returns a list of all endpoints that conform to DRF APIView
         
-        # Map "type" to "int" or "str"
-        if type_ == "int":
-            mapped_type = "integer"
-        elif type_ == "str":
-            mapped_type = "string"
-        
-        # Add the mapped type and param value to the params list
-        params.append((mapped_type, param))
+        #IMPOTANT: - ignores list based urls like the default admin's
+                    - depth of urls is 1 -> ignores inclueed urls inside apps
+        """
+        urls = []
+        proj_urls = get_resolver().url_patterns
+        for proj_url in proj_urls:
+            url = str(proj_url.pattern._route)
+            if isinstance(proj_url, URLResolver) and not isinstance(proj_url.urlconf_name, list):
+                app_urls = proj_url.urlconf_name.urlpatterns
+                for app_url in app_urls:
+                    if isinstance(app_url, URLPattern) and cls._is_drf_endpoint(app_url.callback):
+                        temp = url + str(app_url.pattern._route)
+                        if ignore is not None:
+                            for i in ignore:
+                                if temp.startswith(i):
+                                    continue
+                        urls.append((temp, cls._get_methods(app_url.callback)))
+            elif isinstance(proj_url, URLPattern) and cls._is_drf_endpoint(proj_url.callback):
+                if ignore is not None:
+                            for i in ignore:
+                                if temp.startswith(i):
+                                    continue
+                urls.append((url, cls._get_methods(proj_url.callback)))
+        return urls
     
-    # Return the list of params
-    return params
+    @classmethod
+    def _is_drf_endpoint(cls, callback):
+        _cls = getattr(callback, "cls", None)
+        return (_cls is not None) and issubclass(_cls, APIView)
 
-def format_url(url: str) -> str:
-    """
-    format url to OpenAPI standards
-    """
-    formatted_url = url.replace("<int:", "{")
-    formatted_url = formatted_url.replace("<str:", "{")
-    formatted_url = formatted_url.replace(">", "}")
-    return formatted_url
+    @classmethod
+    def _get_methods(cls, callback) -> tuple[str]:
+        methods = callback.cls().allowed_methods
+        return (method for method in methods if method not in ('OPTIONS', 'HEAD'))
+
+    @staticmethod
+    def format_endpoint(endpoint: str) -> str:
+        """
+        format endpoint to OpenAPI standards
+        """
+        formatted_endpoint = endpoint.replace("<int:", "{")
+        formatted_endpoint = formatted_endpoint.replace("<str:", "{")
+        formatted_endpoint = formatted_endpoint.replace(">", "}")
+        if formatted_endpoint[-1] == '/':
+            formatted_endpoint = formatted_endpoint[:-1]
+        if formatted_endpoint[0] != '/':
+            formatted_endpoint = '/' + formatted_endpoint
+        return formatted_endpoint
 
 
 
-def field_mapper(field) -> str|tuple[str, str]:
-    if isinstance(field, (models.BigAutoField, models.PositiveBigIntegerField, models.ForeignKey)):
-        return "integer"
-    if isinstance(field, models.BooleanField):
-        return "boolean"
-    if isinstance(field, models.DateTimeField):
-        return "string", "date-time"
-    if isinstance(field, models.EmailField):
-        return "string", "email" 
-    return "string"
 
-def create_base_schema(model):
-    base_schema = {model.__name__: {}}
-    fields = model._meta.local_fields
-    for field in fields:
-        type_ = field_mapper(field)
-        if isinstance(type_, tuple):
-            base_schema[model.__name__][field.name] = {
-                "type": type_[0],
-                "format": type_[1],
-                "required": field.blank
-            }
-        else:
-            base_schema[model.__name__][field.name] = {
-                "type": type_,
-                "required": field.blank
-            }
-    return base_schema
+
+

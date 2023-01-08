@@ -1,6 +1,8 @@
 from django.conf import settings
 
 DEFAULTS = {
+    "PUBLIC": False,
+    "USE_SAVED": False,
     "META": {
         "openapi": "3.0.3",
         "info": {
@@ -21,6 +23,18 @@ DEFAULTS = {
     
     "TAGS": None,
 
+    "IGNORE_MODELS": [
+        "LogEntry",
+        "Permission",
+        "Group",
+        "ContentType",
+        "Session",
+    ],
+    
+    "IGNORE_PATHS": [
+        "docs/"
+    ]
+    
 }
 
 

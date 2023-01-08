@@ -216,8 +216,8 @@ DOCS = {
         },
     },
     "SERVERS": {
-        "ADD_CURRENT": True,
-        "ADD_ALLOWED": False,
+        "ADD_CURRENT": False,
+        "ADD_ALLOWED": True,
         "ADD": None
         },
     "JWT_SECURITY": {
@@ -232,4 +232,14 @@ DOCS = {
             {"name": "TaskList"},
             {"name": "TaskGroup"},
         ],
+    "IGNORE_MODELS": [
+        "TaskResult",
+        "ChordCounter",
+        "GroupResult",
+        "LogEntry",
+        "Permission",
+        "Group",
+        "ContentType",
+        "Session",
+    ]
 }
