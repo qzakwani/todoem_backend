@@ -208,6 +208,9 @@ CHANNEL_LAYERS = {
 ###   DOCS   ###
 ################
 DOCS = {
+    "USE_GENERATED": True,
+    "PUBLIC": False,
+    
     "META": {
         "openapi": "3.0.3",
         "info": {
@@ -215,27 +218,25 @@ DOCS = {
             "version": "1.0.0"
         },
     },
+    
     "SERVERS": {
-        "ADD_CURRENT": False,
-        "ADD_ALLOWED": True,
+        "ADD_CURRENT": True,
+        "ADD_ALLOWED": False,
         "ADD": None
         },
     "JWT_SECURITY": {
         "ADD": True,
-        "ALL": True,
+        "ALL": False,
     },
+
+    "LOGIN_URL": "admin:login",
     
-    "TAGS": [
-            {"name": "Account"},
-            {"name": "Lister"},
-            {"name": "Task"},
-            {"name": "TaskList"},
-            {"name": "TaskGroup"},
-        ],
     "IGNORE_MODELS": [
+        "DocsSettings",
         "TaskResult",
         "ChordCounter",
         "GroupResult",
+        "DocsSchema",
         "LogEntry",
         "Permission",
         "Group",

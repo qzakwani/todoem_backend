@@ -36,10 +36,7 @@ class BaseSchemaGenerator:
             temp_schema['components']['securitySchemes'] = self.JWT_SECURITY
             if docs_settings.JWT_SECURITY["ALL"]:
                 temp_schema["security"] = [{"Bearer": []}]
-        
-        if docs_settings.TAGS is not None and isinstance(docs_settings.TAGS, list):
-            temp_schema["tags"] = docs_settings.TAGS
-        
+                
         if docs_settings.SERVERS["ADD"] is not None and isinstance(docs_settings.SERVERS["ADD"], list):
             temp_schema["servers"] = docs_settings.SERVERS["ADD"]
         elif docs_settings.SERVERS["ADD_CURRENT"]:
@@ -87,6 +84,7 @@ class PathSchemaGenerator:
                 m = method.lower()
                 inner[m] = {
                     "operationId": m + "PATH" + str(i),
+                    "tags": [docs_settings.DEFAULT_TAG] if not docs_settings.USE_TAGS else self._get_tags(m, path),
                     "responses": {}
                 }
             if self.has_params(path):
@@ -105,6 +103,14 @@ class PathSchemaGenerator:
             schema[self.ep.format_endpoint(path)] = inner
         return schema
 
+    def _get_tags(self, method: str, path: str):
+        if docs_settings.TAGS_TYPE == "methods":
+            return [method.upper()]
+        elif docs_settings.TAGS_TYPE == "path":
+            return [path.split('/')[0].upper()]
+        else:
+            return [docs_settings.DEFAULT_TAG]
+    
     def has_params(self, endpoint: str) -> bool:
         return "<" in endpoint
 
@@ -205,6 +211,13 @@ class ModelSchemaGenerator:
 
 
 def generate_schema(req):
+    s = BaseSchemaGenerator(request=req).base_schema
+    s["paths"] = PathSchemaGenerator().path_schema
+    if docs_settings.MODELS_SCHEMA:
+        s["components"]["schemas"] = ModelSchemaGenerator().model_schema
+    return s
+
+def generate_eidt_schema(req):
     s = BaseSchemaGenerator(request=req).base_schema
     s["paths"] = PathSchemaGenerator().path_schema
     s["components"]["schemas"] = ModelSchemaGenerator().model_schema

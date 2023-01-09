@@ -1,15 +1,35 @@
 from django.conf import settings
 
+try:
+    project = settings.DOCS_NAME
+except AttributeError:
+    project = settings.ROOT_URLCONF.split(".")[0].capitalize()
+except:
+    project = "PROJECT"
+
 DEFAULTS = {
+    "USE_GENERATED": False,
     "PUBLIC": False,
-    "USE_SAVED": False,
     "META": {
         "openapi": "3.0.3",
         "info": {
-            "title": "DRF API",
-            "version": "1.0.0"
-        },
+            "title": f"{project} API",
+            "version": "1.0.0",
+            "description": f"This is {project} API Docs.",
+            "termsOfService": "http://example.com/terms/",
+            "contact": {
+                "name": f"{project} API Support",
+                "url": f"http://www.{project.lower()}.com/support",
+                "email": f"support@{project.lower()}.com"
+            },
+            "license": {
+                "name": "OMAZ DOCS 2.0",
+                "url": "omaz.xyz"
+            },
+        }
     },
+    
+    "MODELS_SCHEMA": False,
     
     "SERVERS": {
         "ADD_CURRENT": True,
@@ -20,10 +40,13 @@ DEFAULTS = {
         "ADD": False,
         "ALL": False,
     },
-    
-    "TAGS": None,
+    "DEFAULT_TAG": "Endpoints",
+    "USE_TAGS": False,
+    "TAGS_TYPE": "path", #path
 
     "IGNORE_MODELS": [
+        "DocsSchema",
+        "DocsSettings",
         "LogEntry",
         "Permission",
         "Group",
@@ -32,10 +55,37 @@ DEFAULTS = {
     ],
     
     "IGNORE_PATHS": [
-        "docs/"
-    ]
+        "docs/",
+        "admin/",
+    ],
     
+    "LOGIN_URL": "admin:login",
+    
+    
+    "UNAUTHORIZED_RESPONSE": {
+    "openapi": "3.0.3",
+        "info": {
+            "title": f"{project} API",
+            "version": "1.0.0",
+            "description": f"Login Required for {project} API Docs.",
+
+        },
+        "paths": {}
+        
+    },
+    "EMPTY_RESPONSE": {
+    "openapi": "3.0.3",
+        "info": {
+            "title": f"{project} API",
+            "version": "1.0.0",
+            "description": f"Empty {project} API Docs.",
+
+        },
+        "paths": {}
+    }
 }
+
+
 
 
 
