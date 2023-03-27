@@ -144,6 +144,19 @@ def get_lister(req, lister_id, *args, **kwargs):
         return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['GET'])
+@authenticated
+def get_lister_by_username(req, username, *args, **kwargs):
+    try:
+        lister = User.objects.get(username=username)
+        ser = ListerSerializer(lister)
+        return Response(ser.data, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        return Response({'message': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['POST'])
 @authenticated
 def disconnect_lister(req, lister_id, *args, **kwargs):
@@ -162,12 +175,31 @@ def disconnect_lister(req, lister_id, *args, **kwargs):
 
 @api_view(['POST'])
 @authenticated
+def search_my_listers(req, *args, **kwargs):
+    try:
+        page_number = req.query_params.get('page', 1)
+        search = req.data.get('search', None)
+        if search is None: raise SearchInvalid('empty search')
+        query = ConnectedLister.objects.filter(Q(user_id=req.user.id), Q(lister__username__icontains=search) | Q(lister__name__icontains=search)).select_related('lister')
+        page = paginate_list(query, 5, page_number)
+        ser = ConnectedListerSerializer(page, many=True)
+        return Response({'next': page.has_next(), 'result': ser.data}, status=status.HTTP_200_OK)
+    except SearchInvalid as e:
+        return Response({'message': e.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({'message': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+@api_view(['POST'])
+@authenticated
 def search_listers(req, *args, **kwargs):
     try:
         page_number = req.query_params.get('page', 1)
         search = req.data.get('search', None)
         if search is None: raise SearchInvalid('empty search')
-        query = User.objects.filter(Q(private=False), Q(username__icontains=search) | Q(name__icontains=search)).only('id', 'username', 'name')
+        query = User.objects.filter(Q(private=False), Q(username__icontains=search) | Q(name__icontains=search)).exclude(id=req.user.id).only('id', 'username', 'name')
         page = paginate_list(query, 10, page_number)
         ser = ListerSerializer(page, many=True)
         return Response({'next': page.has_next(), 'result': ser.data}, status=status.HTTP_200_OK)

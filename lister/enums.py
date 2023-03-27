@@ -5,3 +5,4 @@ class ConnectionStatus(Enum):
     DISCONNECTED = "disconnected"
     SENT = "sent"
     RECEIVED = "received"
+    PRIVATE = "private"
